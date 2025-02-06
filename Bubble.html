@@ -1,0 +1,35 @@
+<!-- Made by MaxxTheLightning, 2025 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bubble</title>
+    <link rel="stylesheet" href="Scripts/Messenger/style.css">
+    <link rel="website icon" type="png" href="Images/Icon03.png">
+</head>
+<body>
+    <div id="sidebar">
+        <div class="about">
+            <img src="Images/Icon02.png" class="avatar">
+            <label for="file-upload" class="custom-file-upload">Выберите файл</label>
+            <input type="file" id="file-upload" hidden>
+            <h2><span id="username_field"></span></h2>
+            <p id="ip-address">127.0.0.1</p>
+            <p id="user_state">Loading...</p>
+        </div>
+    </div>
+
+    <div id="main">
+        <div id="header">New group</div>
+        <div id="chat"></div>
+        <div id="footer">
+            <input type="text" id="message" placeholder="Type your message...">
+            <button id="send">Send</button>
+        </div>
+    </div>
+
+    <script src="Scripts/Messenger/script.js"></script>
+    <script src="Scripts/Messenger/avatar.js"></script>
+</body>
+</html>
