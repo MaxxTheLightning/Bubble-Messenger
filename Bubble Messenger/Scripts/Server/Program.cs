@@ -1,5 +1,6 @@
 ﻿// Made by MaxxTheLightning, 2025
 
+using System.Text.Json;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -19,6 +20,7 @@ class UnifiedServer
     private static bool all_users_muted = false;
     private static List<string> banlist = new List<string>();
     private static List<string> banlist_reasons = new List<string>();
+    private static List<string> administrators = new List<string>();
     private static bool _programIsStartable = true;
     private static int _maxNumberOfUsers = 0;
     private static bool _unlimitedUsers = false;
@@ -61,6 +63,7 @@ class UnifiedServer
         }
 
         Console.WriteLine("Enter max number of users on server (0 for unlimited):\n");
+
         int response = Convert.ToInt32(Console.ReadLine());
         if(response > 0)
         {
@@ -212,8 +215,10 @@ class UnifiedServer
                 bool isMuted = false;
                 foreach (string i in banlist)
                 {
-                    string formatted_name = "{" + $"\"name\":\"{i}\"";
-                    if (message.StartsWith(formatted_name))
+                    using JsonDocument doc = JsonDocument.Parse(message);
+                    string name = doc.RootElement.GetProperty("name").GetString();
+
+                    if (name == i)
                     {
                         isMuted = true;
                         break;

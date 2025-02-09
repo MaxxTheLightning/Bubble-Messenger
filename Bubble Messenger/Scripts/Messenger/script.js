@@ -12,6 +12,16 @@ const socket = new WebSocket(`ws://${localStorage.getItem("ip-address")}:8080`);
 socket.onopen = () =>
 {
     addMessageToChat('Connected to server...', 'System', new Date().toLocaleTimeString());
+    const time = new Date().toLocaleTimeString();
+    const name = `${this_user}`
+    const message =
+    {
+        type: 'info',
+        text: `${name} connected to server`,
+        time
+    };
+    socket.send(JSON.stringify(message));
+
     state_text.innerHTML = "Online"
     state_text.style.color = "lawngreen"
 };
@@ -24,7 +34,7 @@ socket.onmessage = (event) =>
         // Предполагается, что сервер отправляет JSON-данные
         const data = JSON.parse(event.data);
     
-        const {name = 'Client', text = '', time = new Date().toLocaleTimeString()} = data;
+        const {name = 'System', text = '', time = new Date().toLocaleTimeString()} = data;
     
         // Добавляем сообщение в чат
         addMessageToChat(text, name, time);
@@ -43,6 +53,18 @@ socket.onclose = () =>
     state_text.innerHTML = "Offline"
     state_text.style.color = "red"
 };
+
+window.addEventListener("unload", function() {
+    const time = new Date().toLocaleTimeString();
+    const name = `${this_user}`
+    const message =
+    {
+        type: 'info',
+        text: `${name} disconnected from server`,
+        time
+    };
+    socket.send(JSON.stringify(message));
+});
     
 // Обработка ошибок
 socket.onerror = (error) =>
@@ -70,6 +92,7 @@ function sendMessage()
         const name = `${this_user}`
         const message =
         {
+            type: 'chat',
             name,
             text,
             time
@@ -133,7 +156,7 @@ async function ChatGPT() {
             method: 'POST',
             headers: {
                 'content-type': 'application/json',
-                'X-RapidAPI-Key': 'API-key',
+                'X-RapidAPI-Key': '644f580fa1msh7b4949b883fa3f1p196caejsn6190c076107a',
                 'X-RapidAPI-Host': 'open-ai21.p.rapidapi.com'
             },
             body: JSON.stringify({
@@ -158,10 +181,10 @@ async function ChatGPT() {
             time = new Date().toLocaleTimeString()
             const chatGPT_message =
             {
+                type: 'chat',
                 name: 'ChatGPT',
                 text,
-                time,
-                type: 'received'
+                time
             };
             socket.send(JSON.stringify(chatGPT_message));
         }
