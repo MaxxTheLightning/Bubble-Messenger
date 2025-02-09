@@ -8,7 +8,7 @@ const state_text = document.getElementById("user_state")
 // Подключение к WebSocket серверу
 const socket = new WebSocket(`ws://${localStorage.getItem("ip-address")}:8080`);
     
-// Обработка успешного подключения
+// Обработка успешного подключения к серверу
 socket.onopen = () =>
 {
     addMessageToChat('Connected to server...', 'System', new Date().toLocaleTimeString());
