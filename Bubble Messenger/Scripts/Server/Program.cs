@@ -12,12 +12,29 @@ using System.Net.WebSockets;
 
 class UnifiedServer
 {
+    class User
+    {
+        public string Name { get; set; }
+        public bool isMuted { get; set; }
+        public bool isOnline { get; set; }
+
+        public User(string name)
+        {
+            Name = name;
+            isOnline = true;
+            isMuted = false;
+        }
+    }
+
     private static readonly List<TcpClient> tcpClients = new List<TcpClient>();
     private static readonly Dictionary<WebSocket, bool> webSocketClients = new Dictionary<WebSocket, bool>();
     private static readonly object lockObj = new object();
     private static bool _isManaging = false;
     private static string ip_address = "";
     private static bool all_users_muted = false;
+
+    private static List<User> users = new List<User>();
+
     private static List<string> banlist = new List<string>();
     private static List<string> banlist_reasons = new List<string>();
     private static List<string> administrators = new List<string>();
@@ -90,7 +107,7 @@ class UnifiedServer
         Task.Run(() => HandleConsoleInput());
         try
         {
-            await StartWebSocketServer();       //  ERROR
+            await StartWebSocketServer();
         }
         catch
         {
@@ -148,6 +165,7 @@ class UnifiedServer
         {
             tcpClients.Remove(client);
         }
+        
         client.Close();
         Console.WriteLine("\nClient disconnected.");
     }
@@ -174,8 +192,6 @@ class UnifiedServer
                 if (httpContext.Request.IsWebSocketRequest)
                 {
                     var wsContext = await httpContext.AcceptWebSocketAsync(null);
-                    _usersOnline++;
-                    Console.WriteLine($"\nNew client connected. Users online: {_usersOnline}\n");
                     lock (webSocketClients)
                     {
                         webSocketClients[wsContext.WebSocket] = true;
@@ -200,8 +216,6 @@ class UnifiedServer
             if (result.MessageType == WebSocketMessageType.Close)
             {
                 await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "", CancellationToken.None);
-                _usersOnline--;
-                Console.WriteLine($"\nSomeone left the conversation. Users online: {_usersOnline}");
                 lock (webSocketClients)
                 {
                     webSocketClients.Remove(webSocket);
@@ -211,29 +225,85 @@ class UnifiedServer
             {
                 string message = Encoding.UTF8.GetString(buffer, 0, result.Count);
 
-                // Broadcast to both TCP and WebSocket clients
-                bool isMuted = false;
-                foreach (string i in banlist)
-                {
-                    using JsonDocument doc = JsonDocument.Parse(message);
-                    string name = doc.RootElement.GetProperty("name").GetString();
+                string type = ParseJson(message, "type");
 
-                    if (name == i)
+                if (type == "info")
+                {
+                    string text = ParseJson(message, "text");
+                    string name = ParseJson(message, "name");
+                    string time = ParseJson(message, "time");
+
+                    if (text == "connected to server")
                     {
-                        isMuted = true;
-                        break;
+                        bool isAlreadyUser = false;
+                        foreach (User current in users)
+                        {
+                            if (current.Name == name)
+                            {
+                                current.isOnline = true;
+                                isAlreadyUser = true;
+                                Console.WriteLine($"{current.Name} now is online.");
+                                break;
+                            }
+                        }
+                        if (!isAlreadyUser)
+                        {
+                            users.Add(new User(name));
+                            Console.WriteLine($"New user ({name}) added.");
+                        }
+                    }
+
+                    else if (text == "disconnected from server")
+                    {
+                        foreach (User current in users)
+                        {
+                            if (current.Name == name)
+                            {
+                                current.isOnline = false;
+                                Console.WriteLine($"{current.Name} left the conversation");
+                                break;
+                            }
+                        }
                     }
                 }
-                if (!isMuted && !all_users_muted)
+                else if (type == "chat")
                 {
-                    if (_isManaging)
+                    // Broadcast to both TCP and WebSocket clients
+
+                    bool isMuted = false;
+
+                    string name = ParseJson(message, "name");
+
+                    foreach (User current in users)
                     {
-                        Console.WriteLine("\nMessage received from client: " + message);
+                        if (current.Name == name)
+                        {
+                            if (current.isMuted)
+                            {
+                                isMuted = true;
+                            }
+                            break;
+                        }
                     }
-                    BroadcastMessage(message);
+
+                    if (!isMuted && !all_users_muted)
+                    {
+                        if (_isManaging)
+                        {
+                            Console.WriteLine("\nMessage received from client: " + message);
+                        }
+                        BroadcastMessage(message);
+                    }
                 }
             }
         }
+    }
+
+    private static string ParseJson(string json, string value_name)
+    {
+        using JsonDocument doc = JsonDocument.Parse(json);
+        string result = doc.RootElement.GetProperty(value_name).GetString();
+        return result;
     }
 
     private static void BroadcastMessage(string message)
@@ -316,46 +386,35 @@ class UnifiedServer
             }
             if (input.StartsWith("/say "))
             {
-                string[] parts = input.Split(' ', 3);
-                if (parts.Length == 3)
+                string[] parts = input.Split(' ', 2);
+                if (parts.Length == 2)
                 {
-                    string ip = parts[1];
-                    string message = parts[2];
-                    string timestamp = DateTime.Now.ToString("HH:mm:ss");
-                    string formattedMessage = $"Server ({timestamp}): {message}";
-
-                    string real_message = $"{message}";
-
-                    Console.WriteLine("\nSending: " + formattedMessage);
-                    BroadcastMessage(real_message);
+                    string message = parts[1];
+                    BroadcastMessage(message);
                 }
             }
             if (input.StartsWith("/mute "))
             {
-                string[] parts = input.Split(' ', 3);
-                if (parts.Length == 3)
+                string[] parts = input.Split(' ', 2);
+                if (parts.Length == 2)
                 {
                     string user = parts[1];
-                    string reason = parts[2];
-                    bool isAlreadyBanned = false;
-                    foreach (string i in banlist)
+                    foreach (User current in users)
                     {
-                        if (i == user)
+                        if (current.Name == user)
                         {
-                            isAlreadyBanned = true;
+                            if (!current.isMuted)
+                            {
+                                current.isMuted = true;
+                                Console.WriteLine($"\n{user} muted successfully.\n");
+                                BroadcastMessage($"{user} was muted by administrator.");
+                            }
+                            else
+                            {
+                                Console.WriteLine($"\n{user} is already muted.\n");
+                            }
                             break;
                         }
-                    }
-                    if (!isAlreadyBanned)
-                    {
-                        banlist.Add(user);
-                        banlist_reasons.Add(reason);
-                        Console.WriteLine($"\n{user} muted successfully. Reason: {reason}\n");
-                        BroadcastMessage($"{user} was muted by administrator. Reason: {reason}");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"\n{user} is already muted.\n");
                     }
                 }
             }
@@ -365,32 +424,28 @@ class UnifiedServer
                 if (parts.Length == 2)
                 {
                     string user = parts[1];
-                    bool nowIsBanned = false;
-                    foreach (string i in banlist)
+                    foreach (User current in users)
                     {
-                        if (i == user)
+                        if (current.Name == user)
                         {
-                            nowIsBanned = true;
+                            if (current.isMuted)
+                            {
+                                current.isMuted = false;
+                                Console.WriteLine($"\n{user} unmuted successfully.\n");
+                                BroadcastMessage($"{user} was unmuted by administrator.");
+                            }
+                            else
+                            {
+                                Console.WriteLine($"\n{user} is not muted.\n");
+                            }
                             break;
                         }
-                    }
-                    if (nowIsBanned)
-                    {
-                        banlist.Remove(user);
-                        int index = banlist.IndexOf(user);
-                        banlist_reasons.Remove(banlist_reasons[index]);
-                        Console.WriteLine($"\n{user} unmuted successfully.\n");
-                        BroadcastMessage($"{user} was unmuted by administrator.");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"\n{user} is not muted.\n");
                     }
                 }
             }
             if (input == "/mutelist")
             {
-                if (banlist.Count > 0)
+                /*if (banlist.Count > 0)
                 {
                     Console.WriteLine("\n===============================");
                     Console.WriteLine($"Number of muted users: {banlist.Count}");
@@ -405,6 +460,31 @@ class UnifiedServer
                 else
                 {
                     Console.WriteLine("\nThere's no muted users yet.\n");
+                }*/
+                int muted_users = 0;
+                List<string> usernames = new List<string>();
+
+                foreach (User current in users)
+                {
+                    if (current.isMuted)
+                    {
+                        muted_users++;
+                        usernames.Add(current.Name);
+                    }
+                }
+
+                if (muted_users > 0)
+                {
+                    Console.WriteLine("Muted users:");
+                    for (int i = 1; i <= muted_users; i++)
+                    {
+                        Console.WriteLine($"{i}. {usernames[i - 1]}");
+                    }
+                }
+
+                else
+                {
+                    Console.WriteLine("There's no muted users yet.");
                 }
             }
             if (input == "/muteall")

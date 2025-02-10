@@ -17,7 +17,8 @@ socket.onopen = () =>
     const message =
     {
         type: 'info',
-        text: `${name} connected to server`,
+        name: `${name}`,
+        text: `connected to server`,
         time
     };
     socket.send(JSON.stringify(message));
@@ -60,7 +61,8 @@ window.addEventListener("unload", function() {
     const message =
     {
         type: 'info',
-        text: `${name} disconnected from server`,
+        name: `${name}`,
+        text: `disconnected from server`,
         time
     };
     socket.send(JSON.stringify(message));
