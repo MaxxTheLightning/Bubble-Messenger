@@ -22,10 +22,10 @@ class UnifiedServer
         public bool isBanned { get; set; }
         public bool isOnline { get; set; }
         public bool isAdmin { get; set; }
-        public User(string name)
+        public User(string name, string password)
         {
             Name = name;
-            Password = "12345678";
+            Password = password;
             Bio = "No bio...";
             SentMessages = 0;
             isOnline = true;
@@ -87,7 +87,7 @@ class UnifiedServer
                 _isManaging = true;
                 break;
             case "n":       // no
-                Console.WriteLine("\nNow you aren't managing all messages. If you want, you can use command 'spy'.\n");
+                Console.WriteLine("\nNow you aren't managing all messages. If you want, you can use command '/spy'.\n");
                 _isManaging = false;
                 break;
             default:
@@ -252,21 +252,14 @@ class UnifiedServer
 
                     if (text == "connected to server")
                     {
-                        bool isAlreadyUser = false;
                         foreach (User current in users)
                         {
                             if (current.Name == name)
                             {
                                 current.isOnline = true;
-                                isAlreadyUser = true;
                                 Console.WriteLine($"{current.Name} now is online.");
                                 break;
                             }
-                        }
-                        if (!isAlreadyUser)
-                        {
-                            users.Add(new User(name));
-                            Console.WriteLine($"New user ({name}) added.");
                         }
                     }
 
@@ -280,6 +273,39 @@ class UnifiedServer
                                 Console.WriteLine($"{current.Name} left the conversation");
                                 break;
                             }
+                        }
+                    }
+
+                    else if (text == "created account")
+                    {
+                        string password = ParseJson(message, "password");
+
+                        users.Add(new User(name, password));
+                        Console.WriteLine($"New account ({name}) added.");
+                    }
+
+                    else if (text == "trying to connect")
+                    {
+                        string password = ParseJson(message, "password");
+                        bool exist = false;
+                        bool error = false;
+
+                        foreach (User current in users)
+                        {
+                            if (current.Name == name)
+                            {
+                                exist = true;
+                                if (current.Password == password)
+                                {
+                                    Console.WriteLine("Correct!");
+                                }
+                            }
+                        }
+
+                        if (!exist)
+                        {
+                            Console.WriteLine($"Account \"{name}\" doesn't exist!");
+                            BroadcastMessage("Account doesn't exist");
                         }
                     }
                 }

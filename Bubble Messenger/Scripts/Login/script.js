@@ -2,17 +2,53 @@
 function login() {
     let username = document.getElementById('username_place').value;
     if (username.trim() === "") {
-        alert("Enter username");
+        alert("Please enter username");
         return;
     }
     localStorage.setItem("username", username);
 
+    let account_password = document.getElementById('password').value;
+    if (account_password.trim() === "") {
+        alert("Please enter your password");
+        return;
+    }
+
     let ip = document.getElementById('ip-address').value;
     if (ip.trim() === "") {
-        alert("Enter IP-Address");
+        alert("Please enter IP-Address");
         return;
     }
     localStorage.setItem("ip-address", ip);
 
-    window.location.href = "Bubble.html";
+    const socket = new WebSocket(`ws://${ip}:8080`);
+    socket.onopen = () =>
+    {
+        const time = new Date().toLocaleTimeString();
+        const name = username; 
+        const message =
+        {
+            type: 'info',
+            name,
+            password: account_password,
+            text: `trying to connect`,
+            time
+        };
+        socket.send(JSON.stringify(message));
+    }
+
+    socket.onmessage = (event) =>
+    {
+        try
+        {
+            if (event.data)
+            {
+                alert(event.data);
+            }
+        } 
+        catch (error)
+        {
+            console.log(error);
+        }
+    };
+    //window.location.href = "Bubble.html";
 }

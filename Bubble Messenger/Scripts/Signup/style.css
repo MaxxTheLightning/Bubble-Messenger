@@ -1,0 +1,169 @@
+/* Made by MaxxTheLightning, 2025 */
+/* Stylesheet for Login page */
+
+body, html {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: #111;
+    color: white;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+}
+
+.background-messages {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.message-from-other {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.1);
+    color: #ddd;
+    border-radius: 1px 15px 15px 15px;
+    padding: 10px 15px;
+    font-size: 14px;
+    max-width: 200px;
+    opacity: 0.3;
+    white-space: nowrap;
+}
+.message {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.1);
+    color: #ddd;
+    border-radius: 1px 15px 15px 15px;
+    padding: 10px 15px;
+    font-size: 14px;
+    max-width: 200px;
+    opacity: 0.3;
+    border-radius: 15px 15px 1px 15px;
+    white-space: nowrap;
+}
+.ring {
+    position: fixed;
+    width: 480px;
+    height: 480px;
+}
+
+.ring i {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 4px solid white;
+    border-radius: 50%;
+    top: 0;
+    left: 0;
+    box-sizing: border-box;
+}
+
+.ring i:nth-child(1) {
+    border-radius: 38% 62% 63% 37% / 41% 44% 56% 59%;
+    animation: animate 6s linear infinite;
+}
+
+.ring:hover i:nth-child(1) {
+    border-color: #00ffff;
+    filter: drop-shadow(0 0 20px #00ffff);
+}
+
+.ring i:nth-child(2) {
+    border-radius: 41% 44% 56% 59% / 38% 62% 63% 37%;
+    animation: animate 4s linear infinite;
+}
+
+.ring:hover i:nth-child(2) {
+    border-color: #1a8cff;
+    filter: drop-shadow(0 0 20px #1a8cff);
+}
+
+.ring i:nth-child(3) {
+    border-radius: 38% 62% 63% 37% / 41% 44% 56% 59%;
+    animation: animate2 10s linear infinite;
+}
+
+.ring:hover i:nth-child(3) {
+    border-color: #1a1aff;
+    filter: drop-shadow(0 0 20px #1a1aff);
+}
+
+@keyframes animate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+@keyframes animate2 {
+    0% { transform: rotate(360deg); }
+    100% { transform: rotate(0deg); }
+}
+
+.login {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 280px;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 40px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+}
+
+.login h2 {
+    margin: 0 0 20px;
+    font-size: 24px;
+    color: #00ffff;
+}
+
+.inputBx {
+    margin-bottom: 20px;
+}
+
+.inputBx input[type="text"],
+.inputBx input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    outline: none;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    color: #00ffff;
+    font-size: 16px;
+}
+
+.inputBx input[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    outline: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    background: linear-gradient(90deg, #00ffff, #1a8cff);
+    color: black;
+    margin-top: 10px;
+}
+
+.links {
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+}
+
+.links a {
+    color: #00ffff;
+    text-decoration: none;
+}
+
+.links a:hover {
+    text-decoration: underline;
+}

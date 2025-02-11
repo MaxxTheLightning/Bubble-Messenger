@@ -11,7 +11,7 @@ const socket = new WebSocket(`ws://${localStorage.getItem("ip-address")}:8080`);
 // Обработка успешного подключения к серверу
 socket.onopen = () =>
 {
-    addMessageToChat('Connected to server...', 'System', new Date().toLocaleTimeString());
+    addMessageToChat('chat', 'Connected to server...', 'System', new Date().toLocaleTimeString());
     const time = new Date().toLocaleTimeString();
     const name = `${this_user}`
     const message =
@@ -35,22 +35,22 @@ socket.onmessage = (event) =>
         // Предполагается, что сервер отправляет JSON-данные
         const data = JSON.parse(event.data);
     
-        const {name = 'System', text = '', time = new Date().toLocaleTimeString()} = data;
+        const {type = '', name = 'System', text = '', time = new Date().toLocaleTimeString()} = data;
     
         // Добавляем сообщение в чат
-        addMessageToChat(text, name, time);
+        addMessageToChat(type, text, name, time);
     } 
     catch (error)
     {
         console.error('Invalid message from server:', event.data, error);
-        addMessageToChat(event.data, 'Server', new Date().toLocaleTimeString());
+        addMessageToChat('chat', event.data, 'Server', new Date().toLocaleTimeString());
     }
 };
     
 // Обработка закрытия соединения
 socket.onclose = () =>
 {
-    addMessageToChat('Disconnected from server...', 'System', new Date().toLocaleTimeString());
+    addMessageToChat('chat', 'Disconnected from server...', 'System', new Date().toLocaleTimeString());
     state_text.innerHTML = "Offline"
     state_text.style.color = "red"
 };
@@ -114,39 +114,42 @@ function sendMessage()
 }
     
 // Функция для добавления сообщения в чат
-function addMessageToChat(text, name, time)
+function addMessageToChat(type, text, name, time)
 {
-    let type_of_message = '';
-    if (name == this_user)
+    if (type == "chat")
     {
-        type_of_message = "sent"
+        let type_of_message = '';
+        if (name == this_user)
+        {
+            type_of_message = "sent"
+        }
+        else
+        {
+            type_of_message = "received"
+        }
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message', type_of_message);
+        
+        const nameDiv = document.createElement('div');
+        nameDiv.classList.add('name');
+        nameDiv.textContent = name;
+        
+        const textDiv = document.createElement('div');
+        textDiv.classList.add('text');
+        textDiv.textContent = text;
+        
+        const timeDiv = document.createElement('div');
+        timeDiv.classList.add('time');
+        timeDiv.textContent = time;
+        
+        messageDiv.appendChild(nameDiv);
+        messageDiv.appendChild(textDiv);
+        messageDiv.appendChild(timeDiv);
+        chat.appendChild(messageDiv);
+        
+        // Автопрокрутка вниз
+        chat.scrollTop = chat.scrollHeight;
     }
-    else
-    {
-        type_of_message = "received"
-    }
-    const messageDiv = document.createElement('div');
-    messageDiv.classList.add('message', type_of_message);
-    
-    const nameDiv = document.createElement('div');
-    nameDiv.classList.add('name');
-    nameDiv.textContent = name;
-    
-    const textDiv = document.createElement('div');
-    textDiv.classList.add('text');
-    textDiv.textContent = text;
-    
-    const timeDiv = document.createElement('div');
-    timeDiv.classList.add('time');
-    timeDiv.textContent = time;
-    
-    messageDiv.appendChild(nameDiv);
-    messageDiv.appendChild(textDiv);
-    messageDiv.appendChild(timeDiv);
-    chat.appendChild(messageDiv);
-    
-    // Автопрокрутка вниз
-    chat.scrollTop = chat.scrollHeight;
 }
 
 async function ChatGPT() {
