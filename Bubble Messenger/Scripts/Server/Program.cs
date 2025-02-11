@@ -15,15 +15,31 @@ class UnifiedServer
     class User
     {
         public string Name { get; set; }
+        public string Password { get; set; }
+        public string Bio { get; set; }
+        public int SentMessages { get; set; }
         public bool isMuted { get; set; }
+        public bool isBanned { get; set; }
         public bool isOnline { get; set; }
-
+        public bool isAdmin { get; set; }
         public User(string name)
         {
             Name = name;
+            Password = "12345678";
+            Bio = "No bio...";
+            SentMessages = 0;
             isOnline = true;
             isMuted = false;
+            isBanned = false;
+            isAdmin = false;
         }
+    }
+
+    class Message
+    {
+        public User Sender { get; set; }
+        public string Text { get; set; }
+        public string TimeStamp { get; set; }
     }
 
     private static readonly List<TcpClient> tcpClients = new List<TcpClient>();
@@ -31,17 +47,12 @@ class UnifiedServer
     private static readonly object lockObj = new object();
     private static bool _isManaging = false;
     private static string ip_address = "";
-    private static bool all_users_muted = false;
 
     private static List<User> users = new List<User>();
 
-    private static List<string> banlist = new List<string>();
-    private static List<string> banlist_reasons = new List<string>();
-    private static List<string> administrators = new List<string>();
     private static bool _programIsStartable = true;
     private static int _maxNumberOfUsers = 0;
     private static bool _unlimitedUsers = false;
-    private static int _usersOnline = 0;
 
     static async Task Main(string[] args)
     {
@@ -50,15 +61,21 @@ class UnifiedServer
         Console.WriteLine("Welcome to Bubble main server.\n");
         Console.WriteLine("WARNING: You must start the server with administrator rights!\n");
         Console.WriteLine("Commands:\n");
-        Console.WriteLine("1. /say [ip-address] text --------------------- say anything in chat (ex.: say 12.34.56.78 Hello!)\n");
+        Console.WriteLine("1. /say [text] -------------------------------- say anything in chat (ex.: /say Hello!)\n");
         Console.WriteLine("2. /spy --------------------------------------- Start managing messages\n");
         Console.WriteLine("3. /stop_spy ---------------------------------- Stop managing messages\n");
         Console.WriteLine("4. /mute [username] --------------------------- Mute user by nickname\n");
         Console.WriteLine("5. /muteall ----------------------------------- Mute everybody in current session\n");
         Console.WriteLine("6. /unmute [username] ------------------------- Unmute user by nickname\n");
         Console.WriteLine("7. /unmuteall --------------------------------- Unmute everybody in current session\n");
-        Console.WriteLine("8. /mutelist ---------------------------------- Show the list of muted users\n");
-        Console.WriteLine("9. /max_users [number] ------------------------ Change the max number of users on server. (0 for unlimited)\n");
+        Console.WriteLine("8. /ban [username] ---------------------------- Ban user by nickname\n");
+        Console.WriteLine("9. /unban [username] -------------------------- Unban user by nickname\n");
+        Console.WriteLine("10. /promote [username] ------------------------ Add administrator rights by nickname\n");
+        Console.WriteLine("11. /dismiss [username] ------------------------ Remove administrator rights by nickname\n");
+        Console.WriteLine("12. /mutelist --------------------------------- Show the list of muted users\n");
+        Console.WriteLine("13. /max_users [number] ----------------------- Change the max number of users on server. (0 for unlimited)\n");
+        Console.WriteLine("14. /users ------------------------------------ See all users on this server.\n");
+        Console.WriteLine("15. /user [username] -------------------------- See all info about user.\n");
         Console.WriteLine("Do you want to manage all messages? (y/n)\n");
 
         string choise = Console.ReadLine();         // Выбор контролирования сообщений в консоли сервера
@@ -186,7 +203,7 @@ class UnifiedServer
 
         while (true)
         {
-            if(_programIsStartable && ((_usersOnline < _maxNumberOfUsers) || _unlimitedUsers))
+            if(_programIsStartable && ((CalculateOnlineUsers() < _maxNumberOfUsers) || _unlimitedUsers))
             {
                 var httpContext = await httpListener.GetContextAsync();
                 if (httpContext.Request.IsWebSocketRequest)
@@ -282,11 +299,15 @@ class UnifiedServer
                             {
                                 isMuted = true;
                             }
+                            else
+                            {
+                                current.SentMessages++;
+                            }
                             break;
                         }
                     }
 
-                    if (!isMuted && !all_users_muted)
+                    if (!isMuted)
                     {
                         if (_isManaging)
                         {
@@ -297,6 +318,19 @@ class UnifiedServer
                 }
             }
         }
+    }
+
+    private static int CalculateOnlineUsers()
+    {
+        int result = 0;
+        foreach (User current in users)
+        {
+            if (current.isOnline)
+            {
+                result++;
+            }
+        }
+        return result;
     }
 
     private static string ParseJson(string json, string value_name)
@@ -361,7 +395,8 @@ class UnifiedServer
         while (true)
         {
             string input = Console.ReadLine();
-            if(input.StartsWith("/max_users "))
+
+            if (input.StartsWith("/max_users "))
             {
                 string[] parts = input.Split(' ', 2);
                 if (parts.Length == 2)
@@ -399,10 +434,12 @@ class UnifiedServer
                 if (parts.Length == 2)
                 {
                     string user = parts[1];
+                    bool exist = false;
                     foreach (User current in users)
                     {
                         if (current.Name == user)
                         {
+                            exist = true;
                             if (!current.isMuted)
                             {
                                 current.isMuted = true;
@@ -415,6 +452,10 @@ class UnifiedServer
                             }
                             break;
                         }
+                    }
+                    if (!exist)
+                    {
+                        Console.WriteLine($"There's no user named {user}");
                     }
                 }
             }
@@ -443,24 +484,153 @@ class UnifiedServer
                     }
                 }
             }
+            if (input.StartsWith("/user "))
+            {
+                string[] parts = input.Split(' ', 2);
+                if (parts.Length == 2)
+                {
+                    string username = parts[1];
+                    bool exist = false;
+                    foreach (User current in users)
+                    {
+                        if (current.Name == username)
+                        {
+                            exist = true;
+                            Console.WriteLine("\n===========================");
+                            Console.WriteLine($"Name: {current.Name}");
+                            Console.WriteLine($"Bio: {current.Bio}");
+                            Console.WriteLine($"Password: {current.Password}");
+                            Console.WriteLine($"Is online: {current.isOnline}");
+                            Console.WriteLine($"Is muted: {current.isMuted}");
+                            Console.WriteLine($"Is banned: {current.isBanned}");
+                            Console.WriteLine($"Messages sent: {current.SentMessages}");
+                            Console.WriteLine("===========================\n");
+                        }
+                    }
+                    if (!exist)
+                    {
+                        Console.WriteLine($"There's no user named {username}");
+                    }
+                }
+            }
+            if (input.StartsWith("/ban "))
+            {
+                string[] parts = input.Split(' ', 2);
+                if (parts.Length == 2)
+                {
+                    string username = parts[1];
+                    bool exist = false;
+                    foreach (User current in users)
+                    {
+                        if (current.Name == username)
+                        {
+                            exist = true;
+                            if (!current.isBanned)
+                            {
+                                current.isBanned = true;
+                                Console.WriteLine($"{username} was banned from this server.");
+                            }
+                            else
+                            {
+                                Console.WriteLine($"{username} is already banned!");
+                            }
+                        }
+                    }
+                    if (!exist)
+                    {
+                        Console.WriteLine($"There's no user named {username}");
+                    }
+                }
+            }
+            if (input.StartsWith("/unban "))
+            {
+                string[] parts = input.Split(' ', 2);
+                if (parts.Length == 2)
+                {
+                    string username = parts[1];
+                    bool exist = false;
+                    foreach (User current in users)
+                    {
+                        if (current.Name == username)
+                        {
+                            exist = true;
+                            if (current.isBanned)
+                            {
+                                current.isBanned = false;
+                                Console.WriteLine($"{username} was unbanned on this server.");
+                            }
+                            else
+                            {
+                                Console.WriteLine($"{username} is not banned!");
+                            }
+                        }
+                    }
+                    if (!exist)
+                    {
+                        Console.WriteLine($"There's no user named {username}");
+                    }
+                }
+            }
+            if (input.StartsWith("/promote "))
+            {
+                string[] parts = input.Split(' ', 2);
+                if (parts.Length == 2)
+                {
+                    string username = parts[1];
+                    bool exist = false;
+                    foreach (User current in users)
+                    {
+                        if (current.Name == username)
+                        {
+                            exist = true;
+                            if (!current.isAdmin)
+                            {
+                                current.isAdmin = true;
+                                Console.WriteLine($"Now {username} is administrator.");
+                            }
+                            else
+                            {
+                                Console.WriteLine($"{username} is already administrator!");
+                            }
+                        }
+                    }
+                    if (!exist)
+                    {
+                        Console.WriteLine($"There's no user named {username}");
+                    }
+                }
+            }
+            if (input.StartsWith("/dismiss "))
+            {
+                string[] parts = input.Split(' ', 2);
+                if (parts.Length == 2)
+                {
+                    string username = parts[1];
+                    bool exist = false;
+                    foreach (User current in users)
+                    {
+                        if (current.Name == username)
+                        {
+                            exist = true;
+                            if (current.isAdmin)
+                            {
+                                current.isAdmin = false;
+                                Console.WriteLine($"Now {username} is not administrator.");
+                            }
+                            else
+                            {
+                                Console.WriteLine($"{username} is not administrator yet!");
+                            }
+                        }
+                    }
+                    if (!exist)
+                    {
+                        Console.WriteLine($"There's no user named {username}");
+                    }
+                }
+            }
             if (input == "/mutelist")
             {
-                /*if (banlist.Count > 0)
-                {
-                    Console.WriteLine("\n===============================");
-                    Console.WriteLine($"Number of muted users: {banlist.Count}");
-                    int user_number = 1;
-                    foreach (string i in banlist)
-                    {
-                        Console.WriteLine($"{user_number}: {i}. Reason: {banlist_reasons[user_number - 1]}");
-                        user_number++;
-                    }
-                    Console.WriteLine("===============================\n");
-                }
-                else
-                {
-                    Console.WriteLine("\nThere's no muted users yet.\n");
-                }*/
                 int muted_users = 0;
                 List<string> usernames = new List<string>();
 
@@ -489,37 +659,51 @@ class UnifiedServer
             }
             if (input == "/muteall")
             {
-                if (!all_users_muted)
+                if (users.Count > 0)
                 {
-                    all_users_muted = true;
+                    foreach (User current in users)
+                    {
+                        if (!current.isMuted)
+                        {
+                            current.isMuted = true;
+                        }
+                    }
                     Console.WriteLine("\nNow nobody cannot send messages.\n");
                     BroadcastMessage("Everybody in this conversation was muted by administrator.");
                 }
                 else
                 {
-                    Console.WriteLine("\nAll users are already muted!\n");
+                    Console.WriteLine("\nThere's no users on server yet.\n");
                 }
             }
             if (input == "/unmuteall")
             {
-                if (banlist.Count > 0)
+                if (users.Count > 0)
                 {
-                    int old_num_of_users = banlist.Count;
-                    banlist.Clear();
-                    banlist_reasons.Clear();
-                    all_users_muted = false;
-                    Console.WriteLine($"\nAll users from mutelist ({old_num_of_users}) was unmuted.\n");
-                    BroadcastMessage($"All users from mutelist ({old_num_of_users}) was unmuted.");
-                }
-                else if (all_users_muted)
-                {
-                    all_users_muted = false;
-                    Console.WriteLine("\nAll users was unmuted.\n");
-                    BroadcastMessage("Everybody in this conversation was unmuted by administrator.");
+                    int old_number_of_muted_users = 0;
+
+                    foreach (User current in users)
+                    {
+                        if (current.isMuted)
+                        {
+                            current.isMuted = false;
+                            old_number_of_muted_users++;
+                        }
+                    }
+
+                    if (old_number_of_muted_users > 0)
+                    {
+                        Console.WriteLine($"\nAll users from mutelist ({old_number_of_muted_users}) was unmuted.\n");
+                        BroadcastMessage($"All users from mutelist ({old_number_of_muted_users}) was unmuted.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("There's no muted users yet.");
+                    }
                 }
                 else
                 {
-                    Console.WriteLine("\nThere's no muted users yet.\n");
+                    Console.WriteLine("\nThere's no users on server yet!\n");
                 }
             }
             if (input == "/spy")
@@ -544,6 +728,24 @@ class UnifiedServer
                 {
                     Console.WriteLine("\nNow you aren't managing all messages. If you want, you can use command 'spy'.");
                     _isManaging = false;
+                }
+            }
+            if (input == "/users")
+            {
+                int count = 1;
+                string state;
+                foreach (User current in users)
+                {
+                    if (current.isOnline)
+                    {
+                        state = "Online";
+                    }
+                    else
+                    {
+                        state = "Offline";
+                    }
+                    Console.WriteLine($"{count}. {current.Name} ({state})");
+                    count++;
                 }
             }
         }
