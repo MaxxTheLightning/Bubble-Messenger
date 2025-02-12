@@ -28,7 +28,7 @@ class UnifiedServer
             Password = password;
             Bio = "No bio...";
             SentMessages = 0;
-            isOnline = true;
+            isOnline = false;
             isMuted = false;
             isBanned = false;
             isAdmin = false;
@@ -40,6 +40,16 @@ class UnifiedServer
         public User Sender { get; set; }
         public string Text { get; set; }
         public string TimeStamp { get; set; }
+        public string Json {  get; set; }
+        public bool IsDeleted { get; set; }
+
+        public Message(User sender, string text, string time, string json)
+        {
+            Sender = sender;
+            Text = text;
+            TimeStamp = time;
+            Json = json;
+        }
     }
 
     private static readonly List<TcpClient> tcpClients = new List<TcpClient>();
@@ -49,6 +59,7 @@ class UnifiedServer
     private static string ip_address = "";
 
     private static List<User> users = new List<User>();
+    private static List<Message> messages = new List<Message>();
 
     private static bool _programIsStartable = true;
     private static int _maxNumberOfUsers = 0;
@@ -169,7 +180,7 @@ class UnifiedServer
                 }
 
                 // Broadcast to both TCP and WebSocket clients
-                BroadcastMessage(message);
+                BroadcastMessage("chat", message);  
             }
             catch (Exception ex)
             {
@@ -252,14 +263,21 @@ class UnifiedServer
 
                     if (text == "connected to server")
                     {
+                        bool exist = false;
                         foreach (User current in users)
                         {
                             if (current.Name == name)
                             {
+                                exist = true;
                                 current.isOnline = true;
                                 Console.WriteLine($"{current.Name} now is online.");
                                 break;
                             }
+                        }
+
+                        if (!exist)
+                        {
+                            BroadcastMessage("error", "Not registered");
                         }
                     }
 
@@ -288,8 +306,6 @@ class UnifiedServer
                     {
                         string password = ParseJson(message, "password");
                         bool exist = false;
-                        bool error = false;
-
                         foreach (User current in users)
                         {
                             if (current.Name == name)
@@ -297,15 +313,21 @@ class UnifiedServer
                                 exist = true;
                                 if (current.Password == password)
                                 {
-                                    Console.WriteLine("Correct!");
+                                    Console.WriteLine($"User {name} loginned successfully.");
+                                    BroadcastMessage("info", "Correct.");
                                 }
+                                else
+                                {
+                                    BroadcastMessage("info", "Invalid password. Please try again.");
+                                }
+                                break;
                             }
                         }
 
                         if (!exist)
                         {
                             Console.WriteLine($"Account \"{name}\" doesn't exist!");
-                            BroadcastMessage("Account doesn't exist");
+                            BroadcastMessage("info", "Account doesn't exist!");
                         }
                     }
                 }
@@ -316,6 +338,8 @@ class UnifiedServer
                     bool isMuted = false;
 
                     string name = ParseJson(message, "name");
+                    string text = ParseJson(message, "text");
+                    string time = ParseJson(message, "time");
 
                     foreach (User current in users)
                     {
@@ -328,6 +352,7 @@ class UnifiedServer
                             else
                             {
                                 current.SentMessages++;
+                                messages.Add(new Message(current, text, time, message));
                             }
                             break;
                         }
@@ -339,7 +364,7 @@ class UnifiedServer
                         {
                             Console.WriteLine("\nMessage received from client: " + message);
                         }
-                        BroadcastMessage(message);
+                        BroadcastMessage("chat", message);
                     }
                 }
             }
@@ -366,9 +391,19 @@ class UnifiedServer
         return result;
     }
 
-    private static void BroadcastMessage(string message)
+    private static void BroadcastMessage(string type, string message)
     {
-        byte[] data = Encoding.UTF8.GetBytes(message);
+        byte[] data = null;
+
+        if (type == "info" || type == "error")
+        {
+            data = Encoding.UTF8.GetBytes("{" + $"\"type\" : \"{type}\", \"text\" : \"{message}\"" + "}");
+        }
+        else if (type == "chat")
+        {
+            data = Encoding.UTF8.GetBytes(message);
+        }
+        
 
         lock (lockObj)
         {
@@ -451,7 +486,7 @@ class UnifiedServer
                 if (parts.Length == 2)
                 {
                     string message = parts[1];
-                    BroadcastMessage(message);
+                    BroadcastMessage("chat", message);
                 }
             }
             if (input.StartsWith("/mute "))
@@ -470,7 +505,7 @@ class UnifiedServer
                             {
                                 current.isMuted = true;
                                 Console.WriteLine($"\n{user} muted successfully.\n");
-                                BroadcastMessage($"{user} was muted by administrator.");
+                                BroadcastMessage("chat", $"{user} was muted by administrator.");
                             }
                             else
                             {
@@ -499,7 +534,7 @@ class UnifiedServer
                             {
                                 current.isMuted = false;
                                 Console.WriteLine($"\n{user} unmuted successfully.\n");
-                                BroadcastMessage($"{user} was unmuted by administrator.");
+                                BroadcastMessage("chat", $"{user} was unmuted by administrator.");
                             }
                             else
                             {
@@ -529,8 +564,10 @@ class UnifiedServer
                             Console.WriteLine($"Is online: {current.isOnline}");
                             Console.WriteLine($"Is muted: {current.isMuted}");
                             Console.WriteLine($"Is banned: {current.isBanned}");
+                            Console.WriteLine($"Is administrator: {current.isAdmin}");
                             Console.WriteLine($"Messages sent: {current.SentMessages}");
                             Console.WriteLine("===========================\n");
+                            break;
                         }
                     }
                     if (!exist)
@@ -695,7 +732,7 @@ class UnifiedServer
                         }
                     }
                     Console.WriteLine("\nNow nobody cannot send messages.\n");
-                    BroadcastMessage("Everybody in this conversation was muted by administrator.");
+                    BroadcastMessage("chat", "Everybody in this conversation was muted by administrator.");
                 }
                 else
                 {
@@ -720,7 +757,7 @@ class UnifiedServer
                     if (old_number_of_muted_users > 0)
                     {
                         Console.WriteLine($"\nAll users from mutelist ({old_number_of_muted_users}) was unmuted.\n");
-                        BroadcastMessage($"All users from mutelist ({old_number_of_muted_users}) was unmuted.");
+                        BroadcastMessage("chat", $"All users from mutelist ({old_number_of_muted_users}) was unmuted.");
                     }
                     else
                     {
@@ -760,18 +797,25 @@ class UnifiedServer
             {
                 int count = 1;
                 string state;
-                foreach (User current in users)
+                if (users.Count > 0)
                 {
-                    if (current.isOnline)
+                    foreach (User current in users)
                     {
-                        state = "Online";
+                        if (current.isOnline)
+                        {
+                            state = "Online";
+                        }
+                        else
+                        {
+                            state = "Offline";
+                        }
+                        Console.WriteLine($"{count}. {current.Name} ({state})");
+                        count++;
                     }
-                    else
-                    {
-                        state = "Offline";
-                    }
-                    Console.WriteLine($"{count}. {current.Name} ({state})");
-                    count++;
+                }
+                else
+                {
+                    Console.WriteLine("No users on server yet...");
                 }
             }
         }

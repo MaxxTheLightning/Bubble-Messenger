@@ -37,6 +37,14 @@ socket.onmessage = (event) =>
     
         const {type = '', name = 'System', text = '', time = new Date().toLocaleTimeString()} = data;
     
+
+        if (type == "error")
+        {
+            if (text == "Not registered")
+            {
+                window.location.href = "Login.html";
+            }
+        }
         // Добавляем сообщение в чат
         addMessageToChat(type, text, name, time);
     } 

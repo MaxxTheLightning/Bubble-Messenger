@@ -40,9 +40,20 @@ function login() {
     {
         try
         {
-            if (event.data)
+            const data = JSON.parse(event.data);
+    
+            const {type = "", text = ""} = data;
+
+            if (type == "info")
             {
-                alert(event.data);
+                if (text != "Correct.")
+                {
+                    alert(text);
+                }
+                else
+                {
+                    window.location.href = "Bubble.html";
+                }
             }
         } 
         catch (error)
@@ -50,5 +61,4 @@ function login() {
             console.log(error);
         }
     };
-    //window.location.href = "Bubble.html";
 }
