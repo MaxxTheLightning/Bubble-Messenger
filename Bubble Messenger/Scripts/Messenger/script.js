@@ -1,42 +1,85 @@
 // Made by MaxxTheLightning, 2025
+
 const chat = document.getElementById('chat');
 const messageInput = document.getElementById('message');
 const sendButton = document.getElementById('send');
 const this_user = localStorage.getItem("username")
 const state_text = document.getElementById("user_state")
-    
-// Подключение к WebSocket серверу
-const socket = new WebSocket(`ws://${localStorage.getItem("ip-address")}:8080`);
-    
-// Обработка успешного подключения к серверу
-socket.onopen = () =>
+const sidebar = document.getElementById("sidebar")
+const defchat = document.getElementById("default-chat")
+
+let selected_chat = "main-chat";
+
+let users_list = []
+
+users_list.push("main-chat");
+
+function ClearMessages(name)
 {
-    addMessageToChat('chat', 'Connected to server...', 'System', new Date().toLocaleTimeString());
-    const time = new Date().toLocaleTimeString();
-    const name = `${this_user}`
+    chat.innerHTML = '';
+    selected_chat = `${name}`;
+
+    let time = new Date().toLocaleTimeString();
     const message =
     {
         type: 'info',
-        name: `${name}`,
-        text: `connected to server`,
+        name: this_user,
+        opponent: selected_chat,
+        text: `load history`,
         time
     };
+
+    socket.send(JSON.stringify(message));
+}
+
+defchat.addEventListener("click", function() {
+    ClearMessages("main-chat");
+    console.log("main-chat");
+});
+
+// Подключение к WebSocket серверу
+
+const socket = new WebSocket(`ws://${localStorage.getItem("ip-address")}:8080`);
+    
+// Обработка успешного подключения к серверу
+
+socket.onopen = () =>
+{
+    addMessageToChat('chat', 'Connected to server...', 'System', new Date().toLocaleTimeString());
+
+    const name = this_user;
+    let to = "chat";
+    let time = new Date().toLocaleTimeString();
+    
+    const message =
+    {
+        type: 'info',
+        name,
+        text: 'connected to server',
+        time
+    };
+
+    // Отправка сообщения на сервер
+
     socket.send(JSON.stringify(message));
 
-    state_text.innerHTML = "Online"
-    state_text.style.color = "lawngreen"
+    state_text.innerHTML = "Online";
+    state_text.style.color = "lawngreen";
 };
     
 // Обработка сообщений от сервера
+
 socket.onmessage = (event) =>
 {
     try
     {
-        // Предполагается, что сервер отправляет JSON-данные
+        // Сервер отправляет JSON-данные
+
         const data = JSON.parse(event.data);
     
-        const {type = '', name = 'System', text = '', time = new Date().toLocaleTimeString()} = data;
+        const {type = '', from = 'System', to = '', time = new Date().toLocaleTimeString(), text = '', filetype = '', specialization = ''} = data;
     
+        //  Ниже - обработка случайного попадания на эту страницу без логина и перенаправление на Login.html
 
         if (type == "error")
         {
@@ -45,8 +88,127 @@ socket.onmessage = (event) =>
                 window.location.href = "Login.html";
             }
         }
-        // Добавляем сообщение в чат
-        addMessageToChat(type, text, name, time);
+        if (type == "new connect")
+        {
+            if (users_list.includes(text))
+            {
+                let chat_with_this_user = document.getElementById(text);
+                let avatar = chat_with_this_user.querySelector('.chat-avatar');
+
+                const online_bar = document.createElement('div');
+                online_bar.classList.add('isOnline');
+                avatar.appendChild(online_bar);
+            }
+
+            else if (text != this_user)
+            {
+                const conversationDiv = document.createElement('div');
+                conversationDiv.classList.add('chatlist');
+                conversationDiv.id = text;
+                
+                const chatAvatarDiv = document.createElement('div');
+                chatAvatarDiv.classList.add('chat-avatar');
+
+                const textsDiv = document.createElement('div');
+                textsDiv.classList.add('texts');
+
+                const conversationName = document.createElement('p');
+                conversationName.classList.add('chatlist-name');
+                conversationName.textContent = text;
+
+                const lastMsg = document.createElement('p');
+                lastMsg.classList.add('last-message');
+                lastMsg.textContent = '...';
+
+                conversationDiv.appendChild(chatAvatarDiv);
+                textsDiv.appendChild(conversationName);
+                textsDiv.appendChild(lastMsg);
+                conversationDiv.appendChild(textsDiv);
+                sidebar.appendChild(conversationDiv);
+
+                conversationDiv.addEventListener("click", function() {
+                    ClearMessages(text);
+                    console.log(text);
+                });
+
+                let chat_with_this_user = document.getElementById(text);
+                let avatar = chat_with_this_user.querySelector('.chat-avatar');
+
+                const online_bar = document.createElement('div');
+                online_bar.classList.add('isOnline');
+                avatar.appendChild(online_bar);
+
+                users_list.push(text);
+            } 
+        }
+        if (type == "history")
+        {
+            console.log("History.");
+            test_text = text;
+            if (specialization == this_user)
+            {
+                const old_msg_data = JSON.parse(test_text);
+    
+                const {type = '', from = 'System', to = '', time = new Date().toLocaleTimeString(), text = '', filetype = ''} = old_msg_data;
+                new_text = text;
+
+                addMessageToChat(type, new_text, from, time);
+            }
+        }
+        if (type == "users-history")
+        {
+            const [uz_text, state] = text.split(/\s/, 2);
+            if (specialization == this_user && uz_text != this_user)
+            {
+                const conversationDiv = document.createElement('div');
+                conversationDiv.classList.add('chatlist');
+                conversationDiv.id = uz_text;
+                    
+                const chatAvatarDiv = document.createElement('div');
+                chatAvatarDiv.classList.add('chat-avatar');
+
+                const textsDiv = document.createElement('div');
+                textsDiv.classList.add('texts');
+
+                const conversationName = document.createElement('p');
+                conversationName.classList.add('chatlist-name');
+                conversationName.textContent = uz_text;
+
+                const lastMsg = document.createElement('p');
+                lastMsg.classList.add('last-message');
+                lastMsg.textContent = '...';
+
+                conversationDiv.appendChild(chatAvatarDiv);
+                textsDiv.appendChild(conversationName);
+                textsDiv.appendChild(lastMsg);
+                conversationDiv.appendChild(textsDiv);
+                sidebar.appendChild(conversationDiv);
+
+                conversationDiv.addEventListener("click", function() {
+                    ClearMessages(uz_text);
+                    console.log(uz_text);
+                });
+
+                if (state == "True")
+                {
+                    const online_bar = document.createElement('div');
+                    online_bar.classList.add('isOnline');
+                    chatAvatarDiv.appendChild(online_bar);
+                }
+
+                users_list.push(uz_text);
+            }
+        }
+        if (type == "user_disconnected")
+        {
+            let disconnected_user = document.getElementById(text);
+            let avatar = disconnected_user.querySelector('.chat-avatar');
+            avatar.innerHTML = '';
+        }
+        if (type == "chat", (from == this_user && to == selected_chat) || (from == selected_chat && to == this_user) || to == selected_chat)
+        {
+            addMessageToChat(type, text, from, time);
+        }
     } 
     catch (error)
     {
@@ -56,6 +218,7 @@ socket.onmessage = (event) =>
 };
     
 // Обработка закрытия соединения
+
 socket.onclose = () =>
 {
     addMessageToChat('chat', 'Disconnected from server...', 'System', new Date().toLocaleTimeString());
@@ -63,27 +226,33 @@ socket.onclose = () =>
     state_text.style.color = "red"
 };
 
+//  Ниже - обработка закрытия страницы и отправка на сервер сообщения об отключении
+
 window.addEventListener("unload", function() {
     const time = new Date().toLocaleTimeString();
     const name = `${this_user}`
     const message =
     {
         type: 'info',
-        name: `${name}`,
+        name,
         text: `disconnected from server`,
         time
     };
+
     socket.send(JSON.stringify(message));
 });
     
 // Обработка ошибок
+
 socket.onerror = (error) =>
 {
     console.error('WebSocket error:', error);
 };
     
 // Отправка сообщения
+
 sendButton.addEventListener('click', () => sendMessage());
+
 messageInput.addEventListener('keypress', (e) =>
 {
     if (e.key === 'Enter')
@@ -93,26 +262,33 @@ messageInput.addEventListener('keypress', (e) =>
 });
     
 // Функция для отправки сообщений
+
 function sendMessage()
 {
     const text = messageInput.value.trim();
+
     if (text)
     {
         const time = new Date().toLocaleTimeString();
-        const name = `${this_user}`
+        const from = this_user;
+        let to = selected_chat;
         const message =
         {
             type: 'chat',
-            name,
+            from,
+            to,
             text,
-            time
+            time,
+            filetype: "text"
         };
     
         // Отправка сообщения на сервер
+
         socket.send(JSON.stringify(message));
     
         // Очистка поля ввода
-        messageInput.value = '';    //  удалить эту строку, чтобы работал ChatGPT!!!
+
+        messageInput.value = '';
 
         if(text.startsWith("/chatGPT "))
         {
@@ -122,19 +298,21 @@ function sendMessage()
 }
     
 // Функция для добавления сообщения в чат
+
 function addMessageToChat(type, text, name, time)
 {
     if (type == "chat")
     {
         let type_of_message = '';
-        if (name == this_user)
+        if (name == this_user)          //  Если имя совпадает с именем этого пользователя, то значит сообщение было им отправлено
         {
-            type_of_message = "sent"
+            type_of_message = "sent";
         }
         else
         {
-            type_of_message = "received"
+            type_of_message = "received";        //  Иначе - сообщение было получено
         }
+
         const messageDiv = document.createElement('div');
         messageDiv.classList.add('message', type_of_message);
         
@@ -156,6 +334,7 @@ function addMessageToChat(type, text, name, time)
         chat.appendChild(messageDiv);
         
         // Автопрокрутка вниз
+
         chat.scrollTop = chat.scrollHeight;
     }
 }
@@ -208,18 +387,26 @@ async function ChatGPT() {
     input.value = "";
 }
 
+//  Получаем данные об имени и IP со страницы логина
+
 document.addEventListener("DOMContentLoaded", function() {
     let username = localStorage.getItem("username");
-    if (!username) {
+    if (!username)
+    {
         window.location.href = "Login.html";
-    } else {
+    }
+    else
+    {
         document.getElementById("username_field").textContent = username;
     }
 
     let ip_address = localStorage.getItem("ip-address")
-    if (!ip_address) {
+    if (!ip_address)
+    {
         window.location.href = "Login.html";
-    } else {
+    }
+    else
+    {
         document.getElementById("ip-address").textContent = ip_address;
     }
 });
