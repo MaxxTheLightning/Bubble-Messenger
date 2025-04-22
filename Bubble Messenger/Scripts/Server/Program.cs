@@ -9,6 +9,13 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Net.WebSockets;
+using System.Text.RegularExpressions;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Numerics;
+using System.Reflection.Metadata;
+using static System.Net.Mime.MediaTypeNames;
+using System.Timers;
+using System.Security.Cryptography.X509Certificates;
 
 class UnifiedServer
 {
@@ -22,30 +29,51 @@ class UnifiedServer
         public bool isBanned { get; set; }
         public bool isOnline { get; set; }
         public bool isAdmin { get; set; }
-        public User(string name, string password)
+        public User(string name, string password, string bio, int sent_msgs, bool is_muted, bool is_banned, bool is_admin)
         {
             Name = name;
             Password = password;
-            Bio = "No bio...";
-            SentMessages = 0;
+            Bio = bio;
+            SentMessages = sent_msgs;
             isOnline = false;
-            isMuted = false;
-            isBanned = false;
-            isAdmin = false;
+            isMuted = is_muted;
+            isBanned = is_banned;
+            isAdmin = is_admin;
+            SetJson();
+        }
+
+        public string Json { get; set; }
+
+        public void SetJson()
+        {
+            string json = "{" +
+                $"\"name\": \"{Name}\"," +
+                $"\"password\": \"{Password}\"," +
+                $"\"bio\": \"{Bio}\"," +
+                $"\"sent_msgs\": \"{SentMessages}\"," +
+                $"\"isOnline\": \"False\"," +
+                $"\"isMuted\": \"{isMuted}\"," +
+                $"\"isBanned\": \"{isBanned}\"," +
+                $"\"isAdmin\": \"{isAdmin}\"" +
+                "}";
+            Json = Regex.Replace(json, "\"", "\\\"");
         }
     }
 
     class Message
     {
-        public User Sender { get; set; }
+        public string Sender { get; set; }
         public string Text { get; set; }
+
+        public string To { get; set; }
         public string TimeStamp { get; set; }
         public string Json {  get; set; }
         public bool IsDeleted { get; set; }
 
-        public Message(User sender, string text, string time, string json)
+        public Message(string sender, string to, string text, string time, string json)
         {
             Sender = sender;
+            To = to;
             Text = text;
             TimeStamp = time;
             Json = json;
@@ -81,8 +109,8 @@ class UnifiedServer
         Console.WriteLine("7. /unmuteall --------------------------------- Unmute everybody in current session\n");
         Console.WriteLine("8. /ban [username] ---------------------------- Ban user by nickname\n");
         Console.WriteLine("9. /unban [username] -------------------------- Unban user by nickname\n");
-        Console.WriteLine("10. /promote [username] ------------------------ Add administrator rights by nickname\n");
-        Console.WriteLine("11. /dismiss [username] ------------------------ Remove administrator rights by nickname\n");
+        Console.WriteLine("10. /promote [username] ----------------------- Add administrator rights by nickname\n");
+        Console.WriteLine("11. /dismiss [username] ----------------------- Remove administrator rights by nickname\n");
         Console.WriteLine("12. /mutelist --------------------------------- Show the list of muted users\n");
         Console.WriteLine("13. /max_users [number] ----------------------- Change the max number of users on server. (0 for unlimited)\n");
         Console.WriteLine("14. /users ------------------------------------ See all users on this server.\n");
@@ -127,6 +155,7 @@ class UnifiedServer
         }
 
         Console.WriteLine("\nNow you can start your server. Write IP-address:\n");
+
         ip_address = Console.ReadLine();        // IP-адрес, на котором будет запущен сервер
 
         Console.WriteLine("\nStarting server...\n");
@@ -201,11 +230,13 @@ class UnifiedServer
     private static async Task StartWebSocketServer()
     {
         HttpListener httpListener = new HttpListener();
-        httpListener.Prefixes.Add($"http://{ip_address}:8080/");
+        httpListener.Prefixes.Add($"http://{ip_address}:443/");
         try
         {
             httpListener.Start();       //  ERROR
             Console.WriteLine($"WebSocket Server started on {ip_address}:8080...\n");
+            ReadHistory();
+            ReadAccounts();
         }
         catch
         {
@@ -261,6 +292,18 @@ class UnifiedServer
                     string name = ParseJson(message, "name");
                     string time = ParseJson(message, "time");
 
+                    if (text == "load history")
+                    {
+                        string opponent = ParseJson(message, "opponent");
+                        foreach (Message current in messages)
+                        {
+                            if ((current.Sender == name && current.To == opponent) || (current.Sender == opponent && current.To == name) || (opponent == "main-chat" && current.To == "main-chat"))
+                            {
+                                BroadcastMessage("history", current.Json, name);
+                            }
+                        }
+                    }
+
                     if (text == "connected to server")
                     {
                         bool exist = false;
@@ -271,6 +314,18 @@ class UnifiedServer
                                 exist = true;
                                 current.isOnline = true;
                                 Console.WriteLine($"{current.Name} now is online.");
+                                BroadcastMessage("new connect", current.Name);
+                                foreach (Message current_msg in messages)
+                                {
+                                    if (current_msg.To == "main-chat")
+                                    {
+                                        BroadcastMessage("history", current_msg.Json, current.Name);
+                                    }
+                                }
+                                foreach (User this_user in users)
+                                {
+                                    BroadcastMessage("users-history", $"{this_user.Name} {this_user.isOnline}", current.Name);
+                                }
                                 break;
                             }
                         }
@@ -288,6 +343,7 @@ class UnifiedServer
                             if (current.Name == name)
                             {
                                 current.isOnline = false;
+                                BroadcastMessage("user_disconnected", name);
                                 Console.WriteLine($"{current.Name} left the conversation");
                                 break;
                             }
@@ -298,7 +354,7 @@ class UnifiedServer
                     {
                         string password = ParseJson(message, "password");
 
-                        users.Add(new User(name, password));
+                        users.Add(new User(name, password, "No bio...", 0, false, false, false));
                         Console.WriteLine($"New account ({name}) added.");
                     }
 
@@ -337,34 +393,44 @@ class UnifiedServer
 
                     bool isMuted = false;
 
-                    string name = ParseJson(message, "name");
+                    string from = ParseJson(message, "from");
+                    string to = ParseJson(message, "to");
                     string text = ParseJson(message, "text");
                     string time = ParseJson(message, "time");
+                    string filetype = ParseJson(message, "filetype");
 
-                    foreach (User current in users)
+                    if (filetype == "text")
                     {
-                        if (current.Name == name)
-                        {
-                            if (current.isMuted)
-                            {
-                                isMuted = true;
-                            }
-                            else
-                            {
-                                current.SentMessages++;
-                                messages.Add(new Message(current, text, time, message));
-                            }
-                            break;
-                        }
-                    }
+                        //  Проверяем, может ли пользователь отправлять сообщения
 
-                    if (!isMuted)
-                    {
-                        if (_isManaging)
+                        foreach (User current in users)
                         {
-                            Console.WriteLine("\nMessage received from client: " + message);
+                            if (current.Name == from)
+                            {
+                                if (current.isMuted)
+                                {
+                                    isMuted = true;
+                                }
+                                else
+                                {
+                                    current.SentMessages++;
+                                    string escapedMessage = Regex.Replace(message, "\"", "\\\"");
+                                    Console.WriteLine(ParseJson(message, "to"));
+                                    messages.Add(new Message(current.Name, ParseJson(message, "to"), text, time, escapedMessage));
+                                    SaveHistory();
+                                }
+                                break;
+                            }
                         }
-                        BroadcastMessage("chat", message);
+
+                        if (!isMuted)
+                        {
+                            if (_isManaging)
+                            {
+                                Console.WriteLine("\nMessage received from client: " + message);
+                            }
+                            BroadcastMessage("chat", message);
+                        }
                     }
                 }
             }
@@ -391,13 +457,17 @@ class UnifiedServer
         return result;
     }
 
-    private static void BroadcastMessage(string type, string message)
+    private static void BroadcastMessage(string type, string message, string specialization = "")
     {
         byte[] data = null;
 
-        if (type == "info" || type == "error")
+        if (type == "info" || type == "error" || type == "new connect" || type == "user_disconnected")
         {
             data = Encoding.UTF8.GetBytes("{" + $"\"type\" : \"{type}\", \"text\" : \"{message}\"" + "}");
+        }
+        else if (type == "history" || type == "users-history")
+        {
+            data = Encoding.UTF8.GetBytes("{" + $"\"type\" : \"{type}\", \"text\" : \"{message}\", \"specialization\" : \"{specialization}\"" + "}");
         }
         else if (type == "chat")
         {
@@ -817,6 +887,138 @@ class UnifiedServer
                 {
                     Console.WriteLine("No users on server yet...");
                 }
+            }
+            if (input == "/save")
+            {
+                SaveHistory();
+                SaveAccounts();
+            }
+            if (input == "/read")
+            {
+                ReadHistory();
+                ReadAccounts();
+            }
+        }
+    }
+
+    static void SaveHistory()
+    {
+        string filePath = @"history.json";
+        string content = "{";
+        int number_of_msgs = messages.Count;
+        int number = 1;
+        if (File.Exists(filePath))
+        {
+            Console.WriteLine("File is ready.");
+        }
+        else
+        {
+            File.Create(filePath).Close();
+            Console.WriteLine("File created");
+        }
+
+        foreach (Message current in messages)
+        {
+            content += ($"\"{number}\": " + $"\"{current.Json}\"");
+            if (number < number_of_msgs)
+            {
+                content += ", ";
+            }
+            number++;
+        }
+
+        content += "}";
+        File.WriteAllText(filePath, content);
+    }
+
+    static void ReadHistory()
+    {
+        string filePath = @"history.json";
+        if (File.Exists(filePath))
+        {
+            int number = 1;
+            string readContent = File.ReadAllText(filePath);
+            while (true)
+            {
+                try
+                {
+                    string res = ParseJson(readContent, $"{number}");
+                    string username = ParseJson(res, "from");
+                    string text = ParseJson(res, "text");
+                    string to = ParseJson(res, "to");
+                    string time = ParseJson(res, "time");
+                    string escapedMessage = Regex.Replace(res, "\"", "\\\"");
+                    messages.Add(new Message(username, to, text, time, escapedMessage));
+                }
+                catch
+                {
+                    break;
+                }
+                number++;
+            }
+        }
+    }
+
+    static void SaveAccounts()
+    {
+        string filePath = @"accounts.json";
+        string content = "{";
+        int number_of_accounts = users.Count;
+        int number = 1;
+        if (File.Exists(filePath))
+        {
+            Console.WriteLine("File is ready.");
+        }
+        else
+        {
+            File.Create(filePath).Close();
+            Console.WriteLine("File created");
+        }
+
+        foreach (User current in users)
+        {
+            current.SetJson();
+            content += ($"\"{number}\": " + $"\"{current.Json}\"");
+            if (number < number_of_accounts)
+            {
+                content += ", ";
+            }
+            number++;
+        }
+
+        content += "}";
+
+        File.WriteAllText(filePath, content);
+    }
+
+    static void ReadAccounts()
+    {
+        string filePath = @"accounts.json";
+        if (File.Exists(filePath))
+        {
+            int number = 1;
+            string readContent = File.ReadAllText(filePath);
+            while (true)
+            {
+                try
+                {
+                    string res = ParseJson(readContent, $"{number}");
+                    string username = ParseJson(res, "name");
+                    string password = ParseJson(res, "password");
+                    string bio = ParseJson(res, "bio");
+                    int sent_msgs = Convert.ToInt32(ParseJson(res, "sent_msgs"));
+                    bool isOnline = Convert.ToBoolean(ParseJson(res, "isOnline"));
+                    bool isMuted = Convert.ToBoolean(ParseJson(res, "isMuted"));
+                    bool isBanned = Convert.ToBoolean(ParseJson(res, "isBanned"));
+                    bool isAdmin = Convert.ToBoolean(ParseJson(res, "isAdmin"));
+                    string escapedJson = Regex.Replace(res, "\"", "\\\"");
+                    users.Add(new User(username, password, bio, sent_msgs, isMuted, isBanned, isAdmin));
+                }
+                catch
+                {
+                    break;
+                }
+                number++;
             }
         }
     }
