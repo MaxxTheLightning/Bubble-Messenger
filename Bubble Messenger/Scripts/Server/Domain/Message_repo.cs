@@ -1,8 +1,8 @@
 namespace Domain
 {
-    interface IMessageRepo
+    public interface IMessageRepo
     {
-        public void GetMessage(string id);
+        public Message GetMessage(string id);
 
         public void CreateMessage(User sender, Dialogue receiver, string text, string time, string timestamp, string json);
 

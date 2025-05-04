@@ -2,16 +2,19 @@ using Domain;
 
 namespace Infrastructure
 {
-    class MockUserRepo : IUserRepo
+    public class MockUserRepo : IUserRepo
     {
         public List<User> Users { get; set; }
 
-        public MockUserRepo()
+        IIdProvider IdProvider { get; }
+
+        public MockUserRepo(IIdProvider idProvider)
         {
             Users = new List<User>();
+            IdProvider = idProvider;
         }
 
-        public User GetUser(string id)
+        public User GetUserById(string id)
         {
             foreach(User user in Users)
             {
@@ -24,10 +27,22 @@ namespace Infrastructure
             return null;
         }
 
+        public User GetUserByName(string name)
+        {
+            foreach (User user in Users)
+            {
+                if (user.Name == name)
+                {
+                    return user;
+                }
+            }
+
+            return null;
+        }
+
         public void CreateUser(string name, string password, string bio)
         {
-            var provider = new RandomIdProvider();
-            User new_user = new User(provider, name, password, bio);
+            User new_user = new User(IdProvider, name, password, bio);
             Users.Add(new_user);
         }
 
@@ -44,7 +59,13 @@ namespace Infrastructure
 
         public void UpdateUser(User user)
         {
-
+            foreach (User u in Users)
+            {
+                if (u.Id == user.Id)
+                {
+                    Users[Users.IndexOf(u)] = user;
+                }
+            }
         }
     }
 }

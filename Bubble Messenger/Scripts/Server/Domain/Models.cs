@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 
 namespace Domain
 {
-    class User
+    public class User
     {
         public string Id { get; }
 
@@ -38,7 +38,7 @@ namespace Domain
         }
     }
 
-    class Message
+    public class Message
     {
         public string Id { get; }
 
@@ -66,7 +66,7 @@ namespace Domain
         }
     }
 
-    class Dialogue
+    public class Dialogue
     {
         public List<User> Participants { get; set; }
 
