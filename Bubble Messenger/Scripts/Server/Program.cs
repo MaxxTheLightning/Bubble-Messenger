@@ -10,7 +10,15 @@ var repo = new MockUserRepo(id_provider);
 
 var register_uc = new RegisterUsecase(repo);
 
+var login_uc = new LoginUsecase(repo);
+
+var del_user_uc = new DeleteUserUsecase(repo);
+
 var reg_control = new RegisterController(register_uc);
+
+var log_control = new LoginController(login_uc);
+
+var del_user_control = new DeleteUserController(del_user_uc);
 
 // Add services to the container.
 
@@ -23,7 +31,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-var routes = new Routes(app, reg_control);
+var routes = new Routes(app, reg_control, log_control, del_user_control);
 
 // Configure the HTTP request pipeline.
 

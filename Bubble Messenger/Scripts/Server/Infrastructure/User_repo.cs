@@ -46,11 +46,11 @@ namespace Infrastructure
             Users.Add(new_user);
         }
 
-        public void DeleteUser(string id)
+        public void DeleteUser(string name)
         {
             foreach (User user in Users)
             {
-                if (user.Id == id)
+                if (user.Name == name)
                 {
                     Users.Remove(user);
                 }

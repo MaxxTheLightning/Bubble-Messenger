@@ -8,7 +8,7 @@ namespace Domain
 
         public void CreateUser(string name, string password, string bio);
 
-        public void DeleteUser(string id);
+        public void DeleteUser(string name);
 
         public void UpdateUser(User user);
     }
