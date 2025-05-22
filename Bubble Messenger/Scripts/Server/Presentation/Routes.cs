@@ -10,12 +10,15 @@
 
         DeleteUserController DeleteUserController { get; set; }
 
-        public Routes(WebApplication application, RegisterController regController, LoginController log_control, DeleteUserController deleteUserController)
+        CreateMessageController CreateMessageController { get; set; }
+
+        public Routes(WebApplication application, RegisterController regController, LoginController log_control, DeleteUserController deleteUserController, CreateMessageController createMessageController)
         {
             Application = application;
             RegController = regController;
             LoginController = log_control;
             DeleteUserController = deleteUserController;
+            CreateMessageController = createMessageController;
         }
 
         public void SetupRoutes()
@@ -23,6 +26,7 @@
             Application.MapPost("/register", RegController.Provide);
             Application.MapPost("/login", LoginController.Provide);
             Application.MapPost("/delete_user", DeleteUserController.Provide);
+            Application.MapPost("/send_message", CreateMessageController.Provide);
         }
     }
 }

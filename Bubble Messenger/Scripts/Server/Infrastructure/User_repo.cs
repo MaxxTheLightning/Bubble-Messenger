@@ -16,7 +16,7 @@ namespace Infrastructure
 
         public User GetUserById(string id)
         {
-            foreach(User user in Users)
+            foreach (User user in Users)
             {
                 if (user.Id == id)
                 {
@@ -53,6 +53,7 @@ namespace Infrastructure
                 if (user.Name == name)
                 {
                     Users.Remove(user);
+                    break;
                 }
             }
         }

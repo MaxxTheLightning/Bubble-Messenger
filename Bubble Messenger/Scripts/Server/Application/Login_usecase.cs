@@ -5,7 +5,6 @@ namespace Application
     public class LoginUsecase
     {
         IUserRepo Repo { get; }
-        
 
         public enum Result
         {
@@ -21,7 +20,7 @@ namespace Application
 
         public Result Execute(string name, string password)
         {
-            User _user = Repo.GetUserByName(name);
+            User _user = Repo.GetUserByName(name);  //  Пробуем получить пользователя
 
             if (_user != null)
             {

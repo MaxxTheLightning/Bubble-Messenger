@@ -2,7 +2,7 @@
 {
     public interface IDialogueRepo
     {
-        public Dialogue GetDialogue(string id);
+        public Dialogue GetDialogueByName(string id);
 
         public void CreateDialogue(string name, string type);
 

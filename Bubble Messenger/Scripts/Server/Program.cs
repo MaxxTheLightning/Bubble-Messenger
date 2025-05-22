@@ -6,19 +6,27 @@ var builder = WebApplication.CreateBuilder(args);
 
 var id_provider = new RandomIdProvider();
 
-var repo = new MockUserRepo(id_provider);
+var user_repo = new MockUserRepo(id_provider);
 
-var register_uc = new RegisterUsecase(repo);
+var msg_repo = new MockMessageRepo(id_provider);
 
-var login_uc = new LoginUsecase(repo);
+var dialogue_repo = new MockDialogueRepo(id_provider);
 
-var del_user_uc = new DeleteUserUsecase(repo);
+var register_uc = new RegisterUsecase(user_repo);
+
+var login_uc = new LoginUsecase(user_repo);
+
+var del_user_uc = new DeleteUserUsecase(user_repo);
+
+var create_message_uc = new CreateMessageUsecase(msg_repo, user_repo, dialogue_repo);
 
 var reg_control = new RegisterController(register_uc);
 
 var log_control = new LoginController(login_uc);
 
 var del_user_control = new DeleteUserController(del_user_uc);
+
+var create_message_control = new CreateMessageController(create_message_uc);
 
 // Add services to the container.
 
@@ -31,7 +39,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-var routes = new Routes(app, reg_control, log_control, del_user_control);
+var routes = new Routes(app, reg_control, log_control, del_user_control, create_message_control);
 
 // Configure the HTTP request pipeline.
 

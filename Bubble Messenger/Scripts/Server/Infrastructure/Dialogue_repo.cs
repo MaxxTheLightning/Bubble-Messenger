@@ -5,6 +5,7 @@ namespace Infrastructure
     public class MockDialogueRepo : IDialogueRepo
     {
         public List<Dialogue> Dialogues { get; set; }
+
         IIdProvider IdProvider { get; }
 
         public MockDialogueRepo(IIdProvider idProvider) 
@@ -13,11 +14,11 @@ namespace Infrastructure
             IdProvider = idProvider;
         }
 
-        public Dialogue GetDialogue(string id)
+        public Dialogue GetDialogueByName(string name)  //  Получается, что у диалогов должны быть уникальные имена
         {
             foreach (Dialogue dialogue in Dialogues)
             {
-                if (dialogue.Id == id)
+                if (dialogue.Name == name)
                 {
                     return dialogue;
                 }

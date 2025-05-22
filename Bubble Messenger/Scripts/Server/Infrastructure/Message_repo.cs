@@ -27,7 +27,7 @@ namespace Infrastructure
             return null;
         }
 
-        public void CreateMessage(User sender, Dialogue receiver, string text, string time, string timestamp, string json)
+        public void CreateMessage(User sender, Dialogue receiver, string text, string time, string json)
         {
             Message new_message = new Message(IdProvider, sender, receiver, text, time, json);
             Messages.Add(new_message);

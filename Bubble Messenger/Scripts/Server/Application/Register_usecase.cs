@@ -27,6 +27,7 @@ namespace Application
             }
             else
             {
+                //  Мы попробовали получить пользователя. Если он не null, то значит такой пользователь уже существует.
                 return Result.USER_ALREADY_EXISTS;
             }
         }
