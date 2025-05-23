@@ -17,11 +17,11 @@ namespace Application
             Repo = repo;
         }
 
-        public Result Execute(string name, string password, string bio)
+        public Result Execute(string name, string password)
         {
             if (Repo.GetUserByName(name) == null)
             {
-                Repo.CreateUser(name, password, bio);
+                Repo.CreateUser(name, password);
 
                 return Result.SUCCESS;
             }

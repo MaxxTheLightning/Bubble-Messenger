@@ -18,7 +18,13 @@ var login_uc = new LoginUsecase(user_repo);
 
 var del_user_uc = new DeleteUserUsecase(user_repo);
 
+var update_user_uc = new UpdateUserUsecase(user_repo);
+
 var create_message_uc = new CreateMessageUsecase(msg_repo, user_repo, dialogue_repo);
+
+var update_message_uc = new UpdateMessageUsecase(msg_repo);
+
+var delete_message_uc = new DeleteMessageUsecase(msg_repo);
 
 var reg_control = new RegisterController(register_uc);
 
@@ -26,7 +32,13 @@ var log_control = new LoginController(login_uc);
 
 var del_user_control = new DeleteUserController(del_user_uc);
 
+var update_user_control = new UpdateUserController(update_user_uc);
+
 var create_message_control = new CreateMessageController(create_message_uc);
+
+var update_message_control = new UpdateMessageController(update_message_uc);
+
+var delete_message_control = new DeleteMessageController(delete_message_uc);
 
 // Add services to the container.
 
@@ -39,7 +51,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-var routes = new Routes(app, reg_control, log_control, del_user_control, create_message_control);
+var routes = new Routes(app, reg_control, log_control, del_user_control, create_message_control, update_user_control, update_message_control, delete_message_control);
 
 // Configure the HTTP request pipeline.
 

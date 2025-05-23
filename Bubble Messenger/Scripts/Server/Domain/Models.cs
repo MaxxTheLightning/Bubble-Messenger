@@ -12,16 +12,19 @@ namespace Domain
 
         public string Bio { get; set; }
 
+        public string Color { get; set; }
+
         public bool isOnline { get; set; }
 
         public string Json { get; set; }
 
-        public User(IIdProvider provider, string name, string password, string bio)
+        public User(IIdProvider provider, string name, string password)
         {
             Id = provider.GetId(20);
             Name = name;
             Password = password;
-            Bio = bio;
+            Bio = "No bio...";
+            Color = "#ffffff";
             isOnline = false;
             SetJson();
         }

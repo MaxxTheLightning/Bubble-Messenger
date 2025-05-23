@@ -6,7 +6,7 @@ namespace Domain
 
         public User GetUserByName(string name);
 
-        public void CreateUser(string name, string password, string bio);
+        public void CreateUser(string name, string password);
 
         public void DeleteUser(string name);
 

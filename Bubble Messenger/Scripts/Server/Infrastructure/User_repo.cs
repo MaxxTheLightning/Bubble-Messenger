@@ -16,7 +16,7 @@ namespace Infrastructure
 
         public User GetUserById(string id)
         {
-            foreach (User user in Users)
+            foreach (User user in Users.ToList())
             {
                 if (user.Id == id)
                 {
@@ -29,7 +29,7 @@ namespace Infrastructure
 
         public User GetUserByName(string name)
         {
-            foreach (User user in Users)
+            foreach (User user in Users.ToList())
             {
                 if (user.Name == name)
                 {
@@ -40,15 +40,15 @@ namespace Infrastructure
             return null;
         }
 
-        public void CreateUser(string name, string password, string bio)
+        public void CreateUser(string name, string password)
         {
-            User new_user = new User(IdProvider, name, password, bio);
+            User new_user = new User(IdProvider, name, password);
             Users.Add(new_user);
         }
 
         public void DeleteUser(string name)
         {
-            foreach (User user in Users)
+            foreach (User user in Users.ToList())
             {
                 if (user.Name == name)
                 {
@@ -60,7 +60,7 @@ namespace Infrastructure
 
         public void UpdateUser(User user)
         {
-            foreach (User u in Users)
+            foreach (User u in Users.ToList())
             {
                 if (u.Id == user.Id)
                 {
