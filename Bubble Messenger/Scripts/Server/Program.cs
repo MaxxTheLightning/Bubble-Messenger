@@ -4,6 +4,16 @@ using Presentation;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins("https://bubble-messenger.github.io")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 var id_provider = new RandomIdProvider();
 
 var user_repo = new MockUserRepo(id_provider);
@@ -26,6 +36,8 @@ var update_message_uc = new UpdateMessageUsecase(msg_repo);
 
 var delete_message_uc = new DeleteMessageUsecase(msg_repo);
 
+var create_dialogue_uc = new CreateDialogueUsecase(dialogue_repo);
+
 var reg_control = new RegisterController(register_uc);
 
 var log_control = new LoginController(login_uc);
@@ -40,6 +52,8 @@ var update_message_control = new UpdateMessageController(update_message_uc);
 
 var delete_message_control = new DeleteMessageController(delete_message_uc);
 
+var create_dialogue_control = new CreateDialogueController(create_dialogue_uc);
+
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -51,7 +65,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-var routes = new Routes(app, reg_control, log_control, del_user_control, create_message_control, update_user_control, update_message_control, delete_message_control);
+var routes = new Routes(app, reg_control, log_control, del_user_control, create_message_control, update_user_control, update_message_control, delete_message_control, create_dialogue_control);
 
 // Configure the HTTP request pipeline.
 
@@ -61,7 +75,25 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+/*app.UseHttpsRedirection();
+
+app.MapControllers();
+
+app.UseRouting();
+
+app.UseCors();
+
+app.UseAuthorization();
+
+routes.SetupRoutes();
+
+app.Run();*/
+
 app.UseHttpsRedirection();
+
+app.UseRouting();
+
+app.UseCors(); // Œ¡ﬂ«¿“≈À‹ÕŒ Á‰ÂÒ¸
 
 app.UseAuthorization();
 

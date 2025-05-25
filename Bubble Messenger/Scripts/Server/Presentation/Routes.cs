@@ -1,4 +1,7 @@
-﻿namespace Presentation
+﻿using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Builder;
+
+namespace Presentation
 {
     public class Routes
     {
@@ -18,7 +21,9 @@
 
         DeleteMessageController DeleteMessageController { get; set; }
 
-        public Routes(WebApplication application, RegisterController regController, LoginController log_control, DeleteUserController deleteUserController, CreateMessageController createMessageController, UpdateUserController updateUserController, UpdateMessageController updateMessageController, DeleteMessageController deleteMessageController)
+        CreateDialogueController CreateDialogueController { get; set; }
+
+        public Routes(WebApplication application, RegisterController regController, LoginController log_control, DeleteUserController deleteUserController, CreateMessageController createMessageController, UpdateUserController updateUserController, UpdateMessageController updateMessageController, DeleteMessageController deleteMessageController, CreateDialogueController createDialogueController)
         {
             Application = application;
             RegController = regController;
@@ -28,8 +33,10 @@
             UpdateUserController = updateUserController;
             UpdateMessageController = updateMessageController;
             DeleteMessageController = deleteMessageController;
+            CreateDialogueController = createDialogueController;
         }
 
+        
         public void SetupRoutes()
         {
             Application.MapPost("/register", RegController.Provide);
@@ -39,6 +46,8 @@
             Application.MapPost("/update_user", UpdateUserController.Provide);
             Application.MapPost("/update_message", UpdateMessageController.Provide);
             Application.MapPost("/delete_message", DeleteMessageController.Provide);
+            Application.MapPost("/create_dialogue", CreateDialogueController.Provide);
+            // Application.MapGet
         }
     }
 }

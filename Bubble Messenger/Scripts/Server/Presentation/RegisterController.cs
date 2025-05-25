@@ -1,4 +1,5 @@
 ﻿using Application;
+using Microsoft.AspNetCore.Cors;
 
 namespace Presentation
 {
@@ -13,6 +14,7 @@ namespace Presentation
 
         public record UserDTO(string name, string password);
 
+        [DisableCors]
         public IResult Provide(UserDTO dto)
         {
             var result = Usecase.Execute(dto.name, dto.password);
