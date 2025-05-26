@@ -9,8 +9,10 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy =>
     {
         policy.WithOrigins("https://bubble-messenger.github.io")
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetIsOriginAllowedToAllowWildcardSubdomains()
+                .WithExposedHeaders("Access-Control-Allow-Private-Network");
     });
 });
 
@@ -75,25 +77,21 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-/*app.UseHttpsRedirection();
-
-app.MapControllers();
-
-app.UseRouting();
-
-app.UseCors();
-
-app.UseAuthorization();
-
-routes.SetupRoutes();
-
-app.Run();*/
-
 app.UseHttpsRedirection();
 
-app.UseRouting();
+app.Use(async (context, next) =>
+{
+    if (context.Request.Method == "OPTIONS")
+    {
+        context.Response.Headers.Add("Access-Control-Allow-Private-Network", "true");
+    }
+
+    await next();
+});
 
 app.UseCors(); // Œ¡ﬂ«¿“≈À‹ÕŒ Á‰ÂÒ¸
+
+app.UseRouting();
 
 app.UseAuthorization();
 

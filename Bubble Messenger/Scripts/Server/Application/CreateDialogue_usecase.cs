@@ -27,6 +27,8 @@ namespace Application
             {
                 DialogueRepo.CreateDialogue(name, type);
 
+                Console.WriteLine($"\nNew dialogue created:\nName: {name}\nType: {type}");
+
                 return Result.SUCCESS;
             }
         }

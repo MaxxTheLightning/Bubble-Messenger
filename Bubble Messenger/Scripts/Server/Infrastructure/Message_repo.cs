@@ -16,7 +16,7 @@ namespace Infrastructure
 
         public Message GetMessage(string id)
         {
-            foreach (Message message in Messages)
+            foreach (Message message in Messages.ToList())
             {
                 if (message.Id == id)
                 {
@@ -35,7 +35,7 @@ namespace Infrastructure
 
         public void DeleteMessage(string id)
         {
-            foreach (Message message in Messages)
+            foreach (Message message in Messages.ToList())
             {
                 if (message.Id == id)
                 {
@@ -46,7 +46,7 @@ namespace Infrastructure
 
         public void UpdateMessage(Message message)
         {
-            foreach (Message msg in Messages)
+            foreach (Message msg in Messages.ToList())
             {
                 if (msg.Id == message.Id)
                 {

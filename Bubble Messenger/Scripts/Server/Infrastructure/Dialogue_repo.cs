@@ -16,7 +16,7 @@ namespace Infrastructure
 
         public Dialogue GetDialogueByName(string name)  //  Получается, что у диалогов должны быть уникальные имена
         {
-            foreach (Dialogue dialogue in Dialogues)
+            foreach (Dialogue dialogue in Dialogues.ToList())
             {
                 if (dialogue.Name == name)
                 {
@@ -35,7 +35,7 @@ namespace Infrastructure
 
         public void DeleteDialogue(string id)
         {
-            foreach (Dialogue dialogue in Dialogues)
+            foreach (Dialogue dialogue in Dialogues.ToList())
             {
                 if (dialogue.Id == id)
                 {
@@ -46,7 +46,7 @@ namespace Infrastructure
 
         public void UpdateDialogue(Dialogue dialogue)
         {
-            foreach (Dialogue d in Dialogues)
+            foreach (Dialogue d in Dialogues.ToList())
             {
                 if (d.Id == dialogue.Id)
                 {
