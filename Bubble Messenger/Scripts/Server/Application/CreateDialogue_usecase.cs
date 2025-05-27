@@ -6,31 +6,26 @@ namespace Application
     {
         IDialogueRepo DialogueRepo { get; }
 
+        IUserRepo UserRepo { get; }
+
         public enum Result
         {
-            SUCCESS,
-            DIALOGUE_NAME_IS_NOT_UNIQUE
+            SUCCESS
         }
 
-        public CreateDialogueUsecase(IDialogueRepo dialogueRepo)
+        public CreateDialogueUsecase(IDialogueRepo dialogueRepo, IUserRepo userRepo)
         {
             DialogueRepo = dialogueRepo;
+            UserRepo = userRepo;
         }
 
-        public Result Execute(string name, string type)
+        public Result Execute(string name, string type, string creator_name)
         {
-            if (DialogueRepo.GetDialogueByName(name) != null)
-            {
-                return Result.DIALOGUE_NAME_IS_NOT_UNIQUE;
-            }
-            else
-            {
-                DialogueRepo.CreateDialogue(name, type);
+            DialogueRepo.CreateDialogue(name, type);
 
-                Console.WriteLine($"\nNew dialogue created:\nName: {name}\nType: {type}");
+            Console.WriteLine($"\nNew dialogue created:\nName: {name}\nType: {type}");
 
-                return Result.SUCCESS;
-            }
+            return Result.SUCCESS;
         }
     }
 }

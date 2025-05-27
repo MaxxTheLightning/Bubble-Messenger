@@ -2,9 +2,9 @@
 {
     public interface IDialogueRepo
     {
-        public Dialogue GetDialogueByName(string id);
+        public Dialogue GetDialogueById(string id);
 
-        public void CreateDialogue(string name, string type);
+        public void CreateDialogue(string name, string type, User creator);
 
         public void DeleteDialogue(string id);
 

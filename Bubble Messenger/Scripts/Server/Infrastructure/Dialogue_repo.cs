@@ -14,11 +14,11 @@ namespace Infrastructure
             IdProvider = idProvider;
         }
 
-        public Dialogue GetDialogueByName(string name)  //  Получается, что у диалогов должны быть уникальные имена
+        public Dialogue GetDialogueById(string id)
         {
             foreach (Dialogue dialogue in Dialogues.ToList())
             {
-                if (dialogue.Name == name)
+                if (dialogue.Id == id)
                 {
                     return dialogue;
                 }
@@ -27,9 +27,9 @@ namespace Infrastructure
             return null;
         }
 
-        public void CreateDialogue(string name, string type)
+        public void CreateDialogue(string name, string type, User creator)
         {
-            Dialogue new_dialogue = new Dialogue(IdProvider, name, type);
+            Dialogue new_dialogue = new Dialogue(IdProvider, name, type, creator);
             Dialogues.Add(new_dialogue);
         }
 

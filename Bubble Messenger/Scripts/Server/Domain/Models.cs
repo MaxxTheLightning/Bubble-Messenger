@@ -87,10 +87,12 @@ namespace Domain
 
         public string Type { get; set; }
 
-        public Dialogue(IIdProvider provider, string name, string type)
+        public Dialogue(IIdProvider provider, string name, string type, User creator)
         {
             Participants = new List<User>();
+            Participants.Add(creator);
             Administrators = new List<User>();
+            Administrators.Add(creator);
             Muted = new List<User>();
             Banned = new List<User>();
             Messages = new List<Message>();

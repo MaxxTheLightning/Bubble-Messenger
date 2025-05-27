@@ -11,13 +11,16 @@ namespace Application
         public enum Result
         {
             SUCCESS,
-            SAME,
+            SAME_NAME,
             EMPTY_NAME,
             EMPTY_PARTICIPANT,
-            NOT_FOUND,
+            DIALOGUE_NOT_FOUND,
             USER_NOT_FOUND,
             NO_PARTICIPANT,
             ALREADY_PARTICIPANT,
+            ALREADY_MUTED,
+            ALREADY_BANNED,
+            ALREADY_ADMIN,
             NOT_PARTICIPANT,
             ERROR
         }
@@ -28,15 +31,15 @@ namespace Application
             UserRepo = user_repo;
         }
 
-        public Result ChangeName(string name, string new_name)
+        public Result Rename(string id, string new_name)
         {
-            if (Repo.GetDialogueByName(name) == null)
+            if (Repo.GetDialogueById(id) == null)
             {
-                return Result.NOT_FOUND;
+                return Result.DIALOGUE_NOT_FOUND;
             }
-            else if (Repo.GetDialogueByName(name).Name == new_name)
+            else if (Repo.GetDialogueById(id).Name == new_name)
             {
-                return Result.SAME;
+                return Result.SAME_NAME;
             }
             else if (new_name == "")
             {
@@ -44,7 +47,7 @@ namespace Application
             }
             else
             {
-                Dialogue _target = Repo.GetDialogueByName(name);
+                Dialogue _target = Repo.GetDialogueById(id);
                 _target.Name = new_name;
 
                 Repo.UpdateDialogue(_target);
@@ -53,39 +56,152 @@ namespace Application
             }
         }
 
-        public Result ChangeParticipants(string dialogue_name, string type, string participant)
+        public Result ChangeParticipants(string dialogue_id, string type, string participant_name)
         {
-            if (dialogue_name == "")
-            {
-                return Result.EMPTY_NAME;
-            }
-            else if (participant == "")
-            {
-                return Result.EMPTY_PARTICIPANT;
-            }
-            else if (UserRepo.GetUserByName(participant) == null)
+            if (UserRepo.GetUserByName(participant_name) == null)
             {
                 return Result.USER_NOT_FOUND;
             }
 
             if (type == "add")
             {
-                if (!Repo.GetDialogueByName(dialogue_name).Participants.Contains(UserRepo.GetUserByName(participant)) && participant != null)
+                if (!Repo.GetDialogueById(dialogue_id).Participants.Contains(UserRepo.GetUserByName(participant_name)) && participant_name != null)
                 {
                     return Result.ALREADY_PARTICIPANT;
                 }
                 else
                 {
-                    Repo.GetDialogueByName(dialogue_name).Participants.Add(UserRepo.GetUserByName(participant));
+                    Repo.GetDialogueById(dialogue_id).Participants.Add(UserRepo.GetUserByName(participant_name));
 
                     return Result.SUCCESS;
                 }
             }
+
             else if (type == "remove")
             {
-                if (Repo.GetDialogueByName(dialogue_name).Participants.Contains(UserRepo.GetUserByName(participant)) && participant != null)
+                if (Repo.GetDialogueById(dialogue_id).Participants.Contains(UserRepo.GetUserByName(participant_name)) && participant_name != null)
                 {
-                    Repo.GetDialogueByName(dialogue_name).Participants.Remove(UserRepo.GetUserByName(participant));
+                    Repo.GetDialogueById(dialogue_id).Participants.Remove(UserRepo.GetUserByName(participant_name));
+
+                    return Result.SUCCESS;
+                }
+                else
+                {
+                    return Result.NOT_PARTICIPANT;
+                }
+            }
+            else
+            {
+                return Result.ERROR;
+            }
+        }
+
+        public Result ChangeAdministrators(string dialogue_id, string type, string participant_name)
+        {
+            if (UserRepo.GetUserByName(participant_name) == null)
+            {
+                return Result.USER_NOT_FOUND;
+            }
+
+            if (type == "add")
+            {
+                if (!Repo.GetDialogueById(dialogue_id).Administrators.Contains(UserRepo.GetUserByName(participant_name)) && participant_name != null)
+                {
+                    return Result.ALREADY_ADMIN;
+                }
+                else
+                {
+                    Repo.GetDialogueById(dialogue_id).Administrators.Add(UserRepo.GetUserByName(participant_name));
+
+                    return Result.SUCCESS;
+                }
+            }
+
+            else if (type == "remove")
+            {
+                if (Repo.GetDialogueById(dialogue_id).Administrators.Contains(UserRepo.GetUserByName(participant_name)) && participant_name != null)
+                {
+                    Repo.GetDialogueById(dialogue_id).Administrators.Remove(UserRepo.GetUserByName(participant_name));
+
+                    return Result.SUCCESS;
+                }
+                else
+                {
+                    return Result.NOT_PARTICIPANT;
+                }
+            }
+            else
+            {
+                return Result.ERROR;
+            }
+        }
+
+        public Result ChangeMuted(string dialogue_id, string type, string participant_name)
+        {
+            if (UserRepo.GetUserByName(participant_name) == null)
+            {
+                return Result.USER_NOT_FOUND;
+            }
+
+            if (type == "add")
+            {
+                if (!Repo.GetDialogueById(dialogue_id).Muted.Contains(UserRepo.GetUserByName(participant_name)) && participant_name != null)
+                {
+                    return Result.ALREADY_MUTED;
+                }
+                else
+                {
+                    Repo.GetDialogueById(dialogue_id).Muted.Add(UserRepo.GetUserByName(participant_name));
+
+                    return Result.SUCCESS;
+                }
+            }
+
+            else if (type == "remove")
+            {
+                if (Repo.GetDialogueById(dialogue_id).Muted.Contains(UserRepo.GetUserByName(participant_name)) && participant_name != null)
+                {
+                    Repo.GetDialogueById(dialogue_id).Muted.Remove(UserRepo.GetUserByName(participant_name));
+
+                    return Result.SUCCESS;
+                }
+                else
+                {
+                    return Result.NOT_PARTICIPANT;
+                }
+            }
+            else
+            {
+                return Result.ERROR;
+            }
+        }
+
+        public Result ChangeBanned(string dialogue_id, string type, string participant_name)
+        {
+            if (UserRepo.GetUserByName(participant_name) == null)
+            {
+                return Result.USER_NOT_FOUND;
+            }
+
+            if (type == "add")
+            {
+                if (!Repo.GetDialogueById(dialogue_id).Banned.Contains(UserRepo.GetUserByName(participant_name)) && participant_name != null)
+                {
+                    return Result.ALREADY_BANNED;
+                }
+                else
+                {
+                    Repo.GetDialogueById(dialogue_id).Banned.Add(UserRepo.GetUserByName(participant_name));
+
+                    return Result.SUCCESS;
+                }
+            }
+
+            else if (type == "remove")
+            {
+                if (Repo.GetDialogueById(dialogue_id).Banned.Contains(UserRepo.GetUserByName(participant_name)) && participant_name != null)
+                {
+                    Repo.GetDialogueById(dialogue_id).Banned.Remove(UserRepo.GetUserByName(participant_name));
 
                     return Result.SUCCESS;
                 }

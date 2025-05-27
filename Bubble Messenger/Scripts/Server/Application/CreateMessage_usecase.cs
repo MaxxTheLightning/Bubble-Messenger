@@ -24,9 +24,9 @@ namespace Application
             DialogueRepo = dialogueRepo;
         }
 
-        public Result Execute(string sender, string receiver, string text, string time, string json)
+        public Result Execute(string sender, string receiver_id, string text, string time, string json)
         {
-            MessageRepo.CreateMessage(UserRepo.GetUserByName(sender), DialogueRepo.GetDialogueByName(receiver), text, time, json);
+            MessageRepo.CreateMessage(UserRepo.GetUserByName(sender), DialogueRepo.GetDialogueById(receiver_id), text, time, json);
 
             return Result.SUCCESS;
         }

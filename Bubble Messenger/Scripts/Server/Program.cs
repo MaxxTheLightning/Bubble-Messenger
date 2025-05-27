@@ -40,6 +40,8 @@ var delete_message_uc = new DeleteMessageUsecase(msg_repo);
 
 var create_dialogue_uc = new CreateDialogueUsecase(dialogue_repo);
 
+var delete_dialogue_uc = new DeleteDialogueUsecase(dialogue_repo);
+
 var reg_control = new RegisterController(register_uc);
 
 var log_control = new LoginController(login_uc);
@@ -56,6 +58,8 @@ var delete_message_control = new DeleteMessageController(delete_message_uc);
 
 var create_dialogue_control = new CreateDialogueController(create_dialogue_uc);
 
+var delete_dialogue_control = new DeleteDialogueController(delete_dialogue_uc);
+
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -67,7 +71,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-var routes = new Routes(app, reg_control, log_control, del_user_control, create_message_control, update_user_control, update_message_control, delete_message_control, create_dialogue_control);
+var routes = new Routes(app, reg_control, log_control, del_user_control, create_message_control, update_user_control, update_message_control, delete_message_control, create_dialogue_control, delete_dialogue_control);
 
 // Configure the HTTP request pipeline.
 
