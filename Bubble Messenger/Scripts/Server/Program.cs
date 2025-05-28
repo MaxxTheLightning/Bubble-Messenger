@@ -2,6 +2,10 @@ using Application;
 using Infrastructure;
 using Presentation;
 
+WebSocketSpace websock = new WebSocketSpace();
+
+websock.Start();
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCors(options =>
@@ -38,7 +42,7 @@ var update_message_uc = new UpdateMessageUsecase(msg_repo);
 
 var delete_message_uc = new DeleteMessageUsecase(msg_repo);
 
-var create_dialogue_uc = new CreateDialogueUsecase(dialogue_repo);
+var create_dialogue_uc = new CreateDialogueUsecase(dialogue_repo, user_repo);
 
 var delete_dialogue_uc = new DeleteDialogueUsecase(dialogue_repo);
 

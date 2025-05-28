@@ -21,7 +21,7 @@ namespace Application
 
         public Result Execute(string name, string type, string creator_name)
         {
-            DialogueRepo.CreateDialogue(name, type);
+            DialogueRepo.CreateDialogue(name, type, UserRepo.GetUserByName(creator_name));
 
             Console.WriteLine($"\nNew dialogue created:\nName: {name}\nType: {type}");
 
