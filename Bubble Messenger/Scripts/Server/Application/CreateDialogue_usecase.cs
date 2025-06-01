@@ -23,8 +23,6 @@ namespace Application
         {
             DialogueRepo.CreateDialogue(name, type, UserRepo.GetUserByName(creator_name));
 
-            Console.WriteLine($"\nNew dialogue created:\nName: {name}\nType: {type}");
-
             return Result.SUCCESS;
         }
     }

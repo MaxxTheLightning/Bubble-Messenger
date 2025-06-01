@@ -23,11 +23,18 @@ namespace Application
 
             if (_dialogue != null)
             {
+                string _deadDialogueName = _dialogue.Name;
+
                 Repo.DeleteDialogue(id);
+
+                Console.WriteLine($"\nDialogue {_deadDialogueName} deleted successfully.");
+
                 return Result.SUCCESS;
             }
             else
             {
+                Console.WriteLine($"\nDialogue id={id} doesn't exist. (Deleting attempt)");
+
                 return Result.DIALOGUE_DOESNT_EXIST;
             }
         }

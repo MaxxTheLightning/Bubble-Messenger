@@ -25,7 +25,9 @@ namespace Presentation
 
         DeleteDialogueController DeleteDialogueController { get; set; }
 
-        public Routes(WebApplication application, RegisterController regController, LoginController log_control, DeleteUserController deleteUserController, CreateMessageController createMessageController, UpdateUserController updateUserController, UpdateMessageController updateMessageController, DeleteMessageController deleteMessageController, CreateDialogueController createDialogueController, DeleteDialogueController deleteDialogueController)
+        UpdateDialogueController UpdateDialogueController { get; set; }
+
+        public Routes(WebApplication application, RegisterController regController, LoginController log_control, DeleteUserController deleteUserController, CreateMessageController createMessageController, UpdateUserController updateUserController, UpdateMessageController updateMessageController, DeleteMessageController deleteMessageController, CreateDialogueController createDialogueController, DeleteDialogueController deleteDialogueController, UpdateDialogueController updateDialogueController)
         {
             Application = application;
             RegController = regController;
@@ -37,6 +39,7 @@ namespace Presentation
             DeleteMessageController = deleteMessageController;
             CreateDialogueController = createDialogueController;
             DeleteDialogueController = deleteDialogueController;
+            UpdateDialogueController = updateDialogueController;
         }
 
         
@@ -51,6 +54,7 @@ namespace Presentation
             Application.MapPost("/delete_message", DeleteMessageController.Provide);
             Application.MapPost("/create_dialogue", CreateDialogueController.Provide);
             Application.MapPost("/delete_dialogue", DeleteDialogueController.Provide);
+            Application.MapPost("/rename_dialogue", UpdateDialogueController.Rename);
         }
     }
 }

@@ -24,10 +24,15 @@ namespace Application
             if (_message != null)
             {
                 Repo.DeleteMessage(id);
+
+                Console.WriteLine($"\nMessage id={id} deleted successfully.");
+
                 return Result.SUCCESS;
             }
             else
             {
+                Console.WriteLine($"\nMessage id={id} doesn't exist. (Deleting attempt)");
+
                 return Result.MESSAGE_DOESNT_EXIST;
             }
         }

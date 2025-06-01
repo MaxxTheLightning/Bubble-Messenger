@@ -26,15 +26,21 @@ namespace Application
             {
                 if (_user.Password == password)
                 {
+                    Console.WriteLine($"\nUser {_user.Name} loginned successfully.");
+
                     return Result.SUCCESS;
                 }
                 else
                 {
+                    Console.WriteLine($"\nUser {_user.Name} tried to login, but password is incorrect.\nEntered password: {password}\nCorrect password: {_user.Password}");
+
                     return Result.INVALID_PASSWORD;
                 }
             }
             else
             {
+                Console.WriteLine($"\nAccount \"{_user.Name}\" doesn't exist. (Login attempt)");
+
                 return Result.USER_DOESNT_EXIST;
             }
         }

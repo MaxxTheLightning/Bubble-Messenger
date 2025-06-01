@@ -35,22 +35,32 @@ namespace Application
         {
             if (Repo.GetDialogueById(id) == null)
             {
+                Console.WriteLine($"\nDialogue id={id} not found. (Rename attempt)");
+
                 return Result.DIALOGUE_NOT_FOUND;
             }
             else if (Repo.GetDialogueById(id).Name == new_name)
             {
+                Console.WriteLine($"\nDialogue id={id} already has the name \"{new_name}\". (Rename attempt)");
+
                 return Result.SAME_NAME;
             }
             else if (new_name == "")
             {
+                Console.WriteLine($"\nDialogue id={id} cannot have the empty name. (Rename attempt)");
+
                 return Result.EMPTY_NAME;
             }
             else
             {
                 Dialogue _target = Repo.GetDialogueById(id);
+                string _deadDialogueName = _target.Name;
+
                 _target.Name = new_name;
 
                 Repo.UpdateDialogue(_target);
+
+                Console.WriteLine($"\nDialogue {_deadDialogueName} renamed successfully.\nNew name: {new_name}");
 
                 return Result.SUCCESS;
             }

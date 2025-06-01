@@ -1,4 +1,6 @@
+using System.Net.Sockets;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 
 namespace Domain
 {
@@ -18,6 +20,8 @@ namespace Domain
 
         public string Json { get; set; }
 
+        public List<TcpClient> Sessions { get; set; }
+
         public User(IIdProvider provider, string name, string password)
         {
             Id = provider.GetId(20);
@@ -27,6 +31,8 @@ namespace Domain
             Color = "#ffffff";
             isOnline = false;
             SetJson();
+
+            Console.WriteLine($"\nNew account created.\nName: {Name}\nPassword: {Password}\nID: {Id}");
         }
 
         public void SetJson()
@@ -66,6 +72,8 @@ namespace Domain
             Json = json;
             Seen = false;
             Id = provider.GetId(20);
+
+            Console.WriteLine($"\nNew message sent.\nSender: {Sender.Name}\nReceiver: {Receiver.Name} ({Receiver.Type})\nText: {Text}\nTime: {TimeStamp}\nID: {Id}");
         }
     }
 
@@ -99,6 +107,8 @@ namespace Domain
             Name = name;
             Type = type;
             Id = provider.GetId(20);
+
+            Console.WriteLine($"\nNew dialogue created.\nName: {Name}\nType: {Type}\nID: {Id}");
         }
     }
 }
