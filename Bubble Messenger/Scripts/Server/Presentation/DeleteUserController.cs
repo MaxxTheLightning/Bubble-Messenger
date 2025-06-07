@@ -11,11 +11,11 @@ namespace Presentation
             Usecase = uc;
         }
 
-        public record UserDto(string name, string password);
+        public record UserDto(string id, string password);
 
         public IResult Provide(UserDto dto)
         {
-            var result = Usecase.Execute(dto.name, dto.password);
+            var result = Usecase.Execute(dto.id, dto.password);
 
             if (result == DeleteUserUsecase.Result.SUCCESS)
             {

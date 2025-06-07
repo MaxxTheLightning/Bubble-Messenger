@@ -11,11 +11,11 @@ namespace Presentation
             Usecase = uc;
         }
 
-        public record MessageDTo(string id, string new_text);
+        public record MessageDTo(string message_id, string sender_id, string sender_password, string new_text, string new_timestamp);
 
         public IResult Provide(MessageDTo dto)
         {
-            var result = Usecase.Execute(dto.id, dto.new_text);
+            var result = Usecase.Execute(dto.message_id, dto.sender_id, dto.sender_password, dto.new_text, dto.new_timestamp);
 
             if (result == UpdateMessageUsecase.Result.SUCCESS)
             {

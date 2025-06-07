@@ -39,7 +39,7 @@ namespace Application
             }
             else
             {
-                Console.WriteLine($"\nAccount \"{_user.Name}\" doesn't exist. (Login attempt)");
+                Console.WriteLine($"\nAccount \"{name}\" doesn't exist. (Login attempt)");
 
                 return Result.USER_DOESNT_EXIST;
             }

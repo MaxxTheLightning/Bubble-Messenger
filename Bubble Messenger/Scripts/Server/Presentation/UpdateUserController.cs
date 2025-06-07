@@ -11,11 +11,11 @@ namespace Presentation
             Usecase = uc;
         }
 
-        public record UserdtO(string old_name, string new_name, string password, string bio, string color);
+        public record UserdtO(string id, string password, string new_name, string new_password, string new_bio, string new_color, string new_avatarUrl);
 
         public IResult Provide(UserdtO dto)
         {
-            var result = Usecase.Execute(dto.old_name, dto.new_name, dto.password, dto.bio, dto.color);
+            var result = Usecase.Execute(dto.id, dto.password, dto.new_name, dto.new_password, dto.new_bio, dto.new_color, dto.new_avatarUrl);
 
             if (result == UpdateUserUsecase.Result.SUCCESS)
             {

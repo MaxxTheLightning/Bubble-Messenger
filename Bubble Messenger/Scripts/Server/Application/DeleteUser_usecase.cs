@@ -18,9 +18,9 @@ namespace Application
             Repo = repo;
         }
 
-        public Result Execute(string name, string password)
+        public Result Execute(string id, string password)
         {
-            User _user = Repo.GetUserByName(name);  // Пробуем получить пользователя
+            User _user = Repo.GetUserById(id);  // Пробуем получить пользователя
 
             if (_user != null)
             {
@@ -28,7 +28,7 @@ namespace Application
                 {
                     string _deadUsername = _user.Name;
 
-                    Repo.DeleteUser(name);
+                    Repo.DeleteUser(id);
 
                     Console.WriteLine($"\nUser {_deadUsername} deleted successfully.");
 
@@ -43,7 +43,7 @@ namespace Application
             }
             else
             {
-                Console.WriteLine($"\nUser {_user.Name} doesn't exist. (Deleting attempt)");
+                Console.WriteLine($"\nUser {id} doesn't exist. (Deleting attempt)");
 
                 return Result.USER_DOESNT_EXIST;
             }

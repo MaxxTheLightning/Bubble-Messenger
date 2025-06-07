@@ -7,7 +7,7 @@ namespace Infrastructure
 {
     public class BroadcastMessage : IBroadcastMessage
     {
-        public void Broadcast(Dialogue receiver, string message, object lockObj)
+        public void Broadcast(Dialogue receiver, string message, object lockObj, Dictionary<WebSocket, bool> webSocketClients)
         {
             byte[] data = Encoding.UTF8.GetBytes(message);
 

@@ -1,4 +1,5 @@
 ﻿using Domain;
+using System.Reflection;
 
 namespace Application
 {
@@ -12,8 +13,8 @@ namespace Application
 
         public enum Result
         {
-            SUCCESS
-
+            SUCCESS,
+            ERROR
             // Возможно, стоит добавить обработку ошибок. Например, проверка существования пользователя и/или диалога.
         }
 
@@ -24,11 +25,18 @@ namespace Application
             DialogueRepo = dialogueRepo;
         }
 
-        public Result Execute(string sender, string receiver_id, string text, string time, string json)
+        public Result Execute(string sender_id, string sender_password, string receiver_id, string text, string time, string json)
         {
-            MessageRepo.CreateMessage(UserRepo.GetUserByName(sender), DialogueRepo.GetDialogueById(receiver_id), text, time, json);
+            if (UserRepo.GetUserById(sender_id) != null && UserRepo.GetUserById(sender_id).Password == sender_password)
+            {
+                MessageRepo.CreateMessage(UserRepo.GetUserById(sender_id), DialogueRepo.GetDialogueById(receiver_id), text, time, json);
 
-            return Result.SUCCESS;
+                return Result.SUCCESS;
+            }
+            else
+            {
+                return Result.ERROR;
+            }
         }
     }
 }

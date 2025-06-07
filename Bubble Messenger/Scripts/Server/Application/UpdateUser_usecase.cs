@@ -18,15 +18,15 @@ namespace Application
             Repo = repo;
         }
 
-        public Result Execute(string old_name, string new_name, string password, string bio, string color)
+        public Result Execute(string id, string password, string new_name, string new_password, string new_bio, string new_color, string new_avatarUrl)
         {
-            if (Repo.GetUserByName(old_name) == null)
+            if (Repo.GetUserById(id) == null)
             {
-                Console.WriteLine($"\nUser {old_name} doesn't exist. (Updating attempt)");
+                Console.WriteLine($"\nUser {id} doesn't exist. (Updating attempt)");
 
                 return Result.NOT_FOUND;
             }
-            else if (Repo.GetUserByName(new_name) != null && (old_name != new_name))
+            else if (Repo.GetUserById(id) != null && (Repo.GetUserByName(new_name) != null))
             {
                 Console.WriteLine($"\nUser with name \"{new_name}\" already exists. (Updating attempt)");
 
@@ -34,15 +34,19 @@ namespace Application
             }
             else
             {
-                User _target = Repo.GetUserByName(old_name);
+                User _target = Repo.GetUserById(id);
+
+                string _deadname = _target.Name;
+
                 _target.Name = new_name;
                 _target.Password = password;
-                _target.Bio = bio;
-                _target.Color = color;
+                _target.Bio = new_bio;
+                _target.Color = new_color;
+                _target.AvatarUrl = new_avatarUrl;
 
                 Repo.UpdateUser(_target);
 
-                Console.WriteLine($"\nUser {old_name} updated successfully.\nID: {_target.Id}\nName: {new_name}\nPassword: {password}\nBio: {bio}\nColor: {color}");
+                Console.WriteLine($"\nUser {_deadname} updated successfully.\nID: {_target.Id}\nName: {new_name}\nPassword: {password}\nBio: {new_bio}\nColor: {new_color}\nAvatar URL: {new_avatarUrl}");
 
                 return Result.SUCCESS;
             }

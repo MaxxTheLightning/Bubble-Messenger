@@ -18,6 +18,8 @@ namespace Domain
 
         public bool isOnline { get; set; }
 
+        public string AvatarUrl { get; set; }
+
         public string Json { get; set; }
 
         public List<TcpClient> Sessions { get; set; }
@@ -29,6 +31,7 @@ namespace Domain
             Password = password;
             Bio = "No bio...";
             Color = "#ffffff";
+            AvatarUrl = "";
             isOnline = false;
             SetJson();
 
@@ -63,6 +66,8 @@ namespace Domain
 
         public bool Seen { get; set; }
 
+        public bool Edited { get; set; }
+
         public Message(IIdProvider provider, User sender, Dialogue receiver, string text, string time, string json)
         {
             Sender = sender;
@@ -71,6 +76,7 @@ namespace Domain
             TimeStamp = time;
             Json = json;
             Seen = false;
+            Edited = false;
             Id = provider.GetId(20);
 
             Console.WriteLine($"\nNew message sent.\nSender: {Sender.Name}\nReceiver: {Receiver.Name} ({Receiver.Type})\nText: {Text}\nTime: {TimeStamp}\nID: {Id}");
@@ -89,6 +95,8 @@ namespace Domain
 
         public List<Message> Messages { get; set; }
 
+        public User Creator { get; set; }
+
         public string Id { get; set; }
 
         public string Name { get; set; }
@@ -106,9 +114,10 @@ namespace Domain
             Messages = new List<Message>();
             Name = name;
             Type = type;
+            Creator = creator;
             Id = provider.GetId(20);
 
-            Console.WriteLine($"\nNew dialogue created.\nName: {Name}\nType: {Type}\nID: {Id}");
+            Console.WriteLine($"\nNew dialogue created.\nName: {Name}\nCreator: {Creator.Name}\nType: {Type}\nID: {Id}");
         }
     }
 }

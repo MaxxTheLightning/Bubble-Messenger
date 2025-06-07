@@ -38,13 +38,13 @@ var update_user_uc = new UpdateUserUsecase(user_repo);
 
 var create_message_uc = new CreateMessageUsecase(msg_repo, user_repo, dialogue_repo);
 
-var update_message_uc = new UpdateMessageUsecase(msg_repo);
+var update_message_uc = new UpdateMessageUsecase(msg_repo, user_repo);
 
-var delete_message_uc = new DeleteMessageUsecase(msg_repo);
+var delete_message_uc = new DeleteMessageUsecase(msg_repo, user_repo);
 
 var create_dialogue_uc = new CreateDialogueUsecase(dialogue_repo, user_repo);
 
-var delete_dialogue_uc = new DeleteDialogueUsecase(dialogue_repo);
+var delete_dialogue_uc = new DeleteDialogueUsecase(dialogue_repo, user_repo);
 
 var update_dialogue_uc = new UpdateDialogueUsecase(dialogue_repo, user_repo);
 

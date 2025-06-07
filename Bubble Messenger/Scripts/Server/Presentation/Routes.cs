@@ -48,10 +48,12 @@ namespace Presentation
             Application.MapPost("/register", RegController.Provide);
             Application.MapPost("/login", LoginController.Provide);
             Application.MapPost("/delete_user", DeleteUserController.Provide);
-            Application.MapPost("/send_message", CreateMessageController.Provide);
             Application.MapPost("/update_user", UpdateUserController.Provide);
-            Application.MapPost("/update_message", UpdateMessageController.Provide);
+
+            Application.MapPost("/send", CreateMessageController.Provide);
+            Application.MapPost("/edit_message", UpdateMessageController.Provide);
             Application.MapPost("/delete_message", DeleteMessageController.Provide);
+
             Application.MapPost("/create_dialogue", CreateDialogueController.Provide);
             Application.MapPost("/delete_dialogue", DeleteDialogueController.Provide);
             Application.MapPost("/rename_dialogue", UpdateDialogueController.Rename);

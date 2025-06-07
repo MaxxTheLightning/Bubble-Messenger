@@ -11,11 +11,11 @@ namespace Presentation
             Usecase = uc;
         }
 
-        public record DialogueDTO(string name, string type, string creator_name);
+        public record DialogueDTO(string dialogue_name, string dialogue_type, string creator_id, string creator_password);
 
         public IResult Provide(DialogueDTO dto)
         {
-            var result = Usecase.Execute(dto.name, dto.type, dto.creator_name);
+            var result = Usecase.Execute(dto.dialogue_name, dto.dialogue_type, dto.creator_id, dto.creator_password);
 
             if (result == CreateDialogueUsecase.Result.SUCCESS)
             {
