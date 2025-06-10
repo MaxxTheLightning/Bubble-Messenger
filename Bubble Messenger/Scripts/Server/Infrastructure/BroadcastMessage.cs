@@ -1,35 +1,24 @@
 ﻿using Domain;
 using System.Net.Sockets;
 using System.Net.WebSockets;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Infrastructure
 {
     public class BroadcastMessage : IBroadcastMessage
     {
-        public void Broadcast(Dialogue receiver, string message, object lockObj, Dictionary<WebSocket, bool> webSocketClients)
+        public void Broadcast(Message message)
         {
-            byte[] data = Encoding.UTF8.GetBytes(message);
+            byte[] data = Encoding.UTF8.GetBytes(message.Json);
 
-            lock (lockObj)
+            Dictionary<WebSocket, bool> webSocketClients = new Dictionary<WebSocket, bool>();
+
+            foreach (User u in message.Receiver.Participants)
             {
-                foreach (var client in receiver.Participants)
+                foreach (var s in u.Sessions)
                 {
-                    foreach (var session in client.Sessions)
-                    {
-                        try
-                        {
-                            if (session.Connected)
-                            {
-                                NetworkStream stream = session.GetStream();
-                                stream.Write(data, 0, data.Length);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine("\nError broadcasting to client: " + ex.Message);
-                        }
-                    }
+                    webSocketClients.Add(s.Key, s.Value);
                 }
             }
 

@@ -2,7 +2,11 @@ using Application;
 using Infrastructure;
 using Presentation;
 
-WebSocketSpace websock = new WebSocketSpace();
+var id_provider = new RandomIdProvider();
+
+var user_repo = new MockUserRepo(id_provider);
+
+WebSocketSpace websock = new WebSocketSpace(user_repo);
 
 websock.Start();
 
@@ -20,11 +24,13 @@ builder.Services.AddCors(options =>
     });
 });
 
-var id_provider = new RandomIdProvider();
 
-var user_repo = new MockUserRepo(id_provider);
 
-var msg_repo = new MockMessageRepo(id_provider);
+var broadcast_msg = new BroadcastMessage();
+
+
+
+var msg_repo = new MockMessageRepo(id_provider, broadcast_msg);
 
 var dialogue_repo = new MockDialogueRepo(id_provider);
 

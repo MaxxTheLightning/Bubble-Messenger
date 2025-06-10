@@ -8,10 +8,13 @@ namespace Infrastructure
 
         IIdProvider IdProvider { get; }
 
-        public MockMessageRepo(IIdProvider idProvider)
+        IBroadcastMessage BroadcastMessage { get; }
+
+        public MockMessageRepo(IIdProvider idProvider, IBroadcastMessage broadcastMessage)
         {
             Messages = new List<Message>();
             IdProvider = idProvider;
+            BroadcastMessage = broadcastMessage;
         }
 
         public Message GetMessage(string id)
@@ -31,6 +34,7 @@ namespace Infrastructure
         {
             Message new_message = new Message(IdProvider, sender, receiver, text, time, json);
             Messages.Add(new_message);
+            BroadcastMessage.Broadcast(new_message);
         }
 
         public void DeleteMessage(string id)

@@ -9,22 +9,25 @@ namespace Presentation
 {
     public class WebSocketSpace
     {
-        private static readonly List<TcpClient> tcpClients = new List<TcpClient>();
+        IUserRepo UserRepo { get; }
+
+        public WebSocketSpace(IUserRepo userRepo)
+        {
+            UserRepo = userRepo;
+        }
+
         private static readonly Dictionary<WebSocket, bool> webSocketClients = new Dictionary<WebSocket, bool>();
-        private static readonly object lockObj = new object();
 
         public void Start()
         {
-            Task.Run(() => Main());
+            Task.Run(() => Main(UserRepo));
         }
 
-        static async Task Main()
+        static async Task Main(IUserRepo userRepo)
         {
-            Task.Run(() => StartTcpChatServer());
-
             try
             {
-                await StartWebSocketServer();
+                await StartWebSocketServer(userRepo);
             }
             catch
             {
@@ -32,59 +35,7 @@ namespace Presentation
             }
         }
 
-        private static async Task StartTcpChatServer()
-        {
-            TcpListener tcpServer = new TcpListener(IPAddress.Any, 5002);
-            tcpServer.Start();
-            Console.WriteLine("Server started.\n");
-
-            while (true)
-            {
-                TcpClient client = await tcpServer.AcceptTcpClientAsync();
-                lock (lockObj)
-                {
-                    tcpClients.Add(client);
-                }
-                Console.WriteLine("\nClient connected.");
-                _ = HandleTcpClient(client);
-            }
-        }
-
-        private static async Task HandleTcpClient(TcpClient client)
-        {
-            NetworkStream stream = client.GetStream();
-            byte[] buffer = new byte[1024];
-
-            while (client.Connected)
-            {
-                try
-                {
-                    int byteCount = await stream.ReadAsync(buffer, 0, buffer.Length);
-                    if (byteCount == 0) break;
-
-                    string message = Encoding.UTF8.GetString(buffer, 0, byteCount);
-                    
-                    Console.WriteLine("\nMessage received: " + message);
-
-                    BroadcastMessage(message);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("\nError handling client: " + ex.Message);
-                    break;
-                }
-            }
-
-            lock (lockObj)
-            {
-                tcpClients.Remove(client);
-            }
-
-            client.Close();
-            Console.WriteLine("\nClient disconnected.");
-        }
-
-        private static async Task StartWebSocketServer()
+        private static async Task StartWebSocketServer(IUserRepo userRepo)
         {
             HttpListener httpListener = new HttpListener();
             httpListener.Prefixes.Add("http://127.0.0.1:8080/");
@@ -108,7 +59,7 @@ namespace Presentation
                     {
                         webSocketClients[wsContext.WebSocket] = true;
                     }
-                    _ = HandleWebSocketClient(wsContext.WebSocket);
+                    _ = HandleWebSocketClient(wsContext.WebSocket, userRepo);
                 }
                 else
                 {
@@ -118,7 +69,7 @@ namespace Presentation
             }
         }
 
-        private static async Task HandleWebSocketClient(WebSocket webSocket)
+        private static async Task HandleWebSocketClient(WebSocket webSocket, IUserRepo userRepo)
         {
             byte[] buffer = new byte[1024];
             while (webSocket.State == WebSocketState.Open)
@@ -136,9 +87,16 @@ namespace Presentation
                 {
                     string message = Encoding.UTF8.GetString(buffer, 0, result.Count);
 
-                    Console.WriteLine($"New message: {message}");
+                    Console.WriteLine($"Wow! New message received: {message}");
+                    Console.WriteLine(ParseJson(message, "name"));
+                    Console.WriteLine(ParseJson(message, "text"));
 
-                    BroadcastMessage(message);
+                    if (ParseJson(message, "name") == "MaxxTheLightning" && ParseJson(message, "text") == "connected to server")
+                    {
+                        Console.WriteLine("Nice.");
+                        User user = userRepo.GetUserByName("MaxxTheLightning");
+                        user.Sessions.Add(webSocket, true);
+                    }
                 }
             }
         }
@@ -148,49 +106,6 @@ namespace Presentation
             using JsonDocument doc = JsonDocument.Parse(json);
             string result = doc.RootElement.GetProperty(value_name).GetString();
             return result;
-        }
-
-        private static void BroadcastMessage(string message, string specialization = "")
-        {
-            byte[] data = Encoding.UTF8.GetBytes(message);
-
-            lock (lockObj)
-            {
-                foreach (var client in tcpClients)
-                {
-                    try
-                    {
-                        if (client.Connected)
-                        {
-                            NetworkStream stream = client.GetStream();
-                            stream.Write(data, 0, data.Length);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine("\nError broadcasting to client: " + ex.Message);
-                    }
-                }
-            }
-
-            lock (webSocketClients)
-            {
-                var clients = new List<WebSocket>(webSocketClients.Keys);
-                foreach (var client in clients)
-                {
-                    if (client.State == WebSocketState.Open)
-                    {
-                        try
-                        {
-                            client.SendAsync(new ArraySegment<byte>(data), WebSocketMessageType.Text, true, CancellationToken.None);
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine("\nError broadcasting to client: " + ex.Message);
-                        }
-                    }
-                }
-            }
         }
     }
 }
