@@ -1,4 +1,5 @@
 ﻿using Application;
+using Domain;
 
 namespace Presentation
 {
@@ -6,9 +7,12 @@ namespace Presentation
     {
         LoginUsecase Usecase { get; set; }
 
-        public LoginController(LoginUsecase uc)
+        IUserRepo UserRepo { get; set; }
+
+        public LoginController(LoginUsecase uc, IUserRepo repo)
         {
             Usecase = uc;
+            UserRepo = repo;
         }
 
         public record UserDTo(string name, string password);
@@ -19,15 +23,21 @@ namespace Presentation
 
             if (result == LoginUsecase.Result.SUCCESS)
             {
-                return Results.Ok("User loginned successfully!");
+                string response = "{ " + $"\"response\": \"User loginned successfully!\", \"id\": \"{UserRepo.GetUserByName(dto.name).Id}\"" + " }";
+
+                return Results.Ok(response);
             }
             else if (result == LoginUsecase.Result.INVALID_PASSWORD)
             {
-                return Results.Conflict("Invalid password!");
+                string response = "{ " + $"\"response\": \"Invalid password!\"" + " }";
+
+                return Results.Conflict(response);
             }
             else
             {
-                return Results.Conflict("User doesn't exist!");
+                string response = "{ " + $"\"response\": \"User doesn't exist!\"" + " }";
+
+                return Results.Conflict(response);
             }
         }
     }

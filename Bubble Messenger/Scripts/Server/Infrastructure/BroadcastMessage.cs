@@ -12,25 +12,27 @@ namespace Infrastructure
         {
             byte[] data = Encoding.UTF8.GetBytes(message.Json);
 
-            Dictionary<WebSocket, bool> webSocketClients = new Dictionary<WebSocket, bool>();
+            Console.WriteLine(message.Id);
+
+            List<WebSocket> webSocketClients = new List<WebSocket>();
 
             foreach (User u in message.Receiver.Participants)
             {
-                foreach (var s in u.Sessions)
+                foreach (var s in u.NewSessions)
                 {
-                    webSocketClients.Add(s.Key, s.Value);
+                    webSocketClients.Add(s);
                 }
             }
 
             lock (webSocketClients)
             {
-                var clients = new List<WebSocket>(webSocketClients.Keys);
-                foreach (var client in clients)
+                foreach (var client in webSocketClients)
                 {
                     if (client.State == WebSocketState.Open)
                     {
                         try
                         {
+                            Console.WriteLine("Message sent.");
                             client.SendAsync(new ArraySegment<byte>(data), WebSocketMessageType.Text, true, CancellationToken.None);
                         }
                         catch (Exception ex)

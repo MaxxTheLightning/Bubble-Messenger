@@ -56,7 +56,7 @@ var update_dialogue_uc = new UpdateDialogueUsecase(dialogue_repo, user_repo);
 
 var reg_control = new RegisterController(register_uc);
 
-var log_control = new LoginController(login_uc);
+var log_control = new LoginController(login_uc, user_repo);
 
 var del_user_control = new DeleteUserController(del_user_uc);
 

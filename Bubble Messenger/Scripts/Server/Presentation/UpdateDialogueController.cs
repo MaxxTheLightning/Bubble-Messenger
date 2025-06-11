@@ -11,11 +11,11 @@ namespace Presentation
             Usecase = uc;
         }
 
-        public record DialogueDtO(string id, string new_name);
+        public record DialogueDtO(string id, string author_id, string author_password, string new_name, string about, string avatarUrl, string participants_IDs, string admins_IDs, string banned_IDs, string muted_IDs);
 
-        public IResult Rename(DialogueDtO dto)
+        public IResult Provide(DialogueDtO dto)
         {
-            var result = Usecase.Rename(dto.id, dto.new_name);
+            var result = Usecase.Execute(dto.id, dto.author_id, dto.author_password, dto.new_name, dto.about, dto.avatarUrl, dto.participants_IDs, dto.admins_IDs, dto.banned_IDs, dto.muted_IDs);
 
             if (result == UpdateDialogueUsecase.Result.SUCCESS)
             {
@@ -31,7 +31,7 @@ namespace Presentation
             }
             else
             {
-                return Results.Conflict("The new dialogue name is empty.");
+                return Results.Conflict("Error.");
             }
         }
     }

@@ -23,7 +23,7 @@ namespace Domain
 
         public string Json { get; set; }
 
-        public Dictionary<WebSocket, bool> Sessions { get; set; }
+        public List<WebSocket> NewSessions { get; set; }
 
         public User(IIdProvider provider, string name, string password)
         {
@@ -34,7 +34,7 @@ namespace Domain
             Color = "#ffffff";
             AvatarUrl = "";
             isOnline = false;
-            Sessions = new Dictionary<WebSocket, bool>();
+            NewSessions = new List<WebSocket>();
             SetJson();
 
             Console.WriteLine($"\nNew account created.\nName: {Name}\nPassword: {Password}\nID: {Id}");
@@ -70,17 +70,16 @@ namespace Domain
 
         public bool Edited { get; set; }
 
-        public Message(IIdProvider provider, User sender, Dialogue receiver, string text, string time, string json)
+        public Message(IIdProvider provider, User sender, Dialogue receiver, string text, string time)
         {
             Sender = sender;
             Receiver = receiver;
             Text = text;
             TimeStamp = time;
-            Json = json;
             Seen = false;
             Edited = false;
-            SetJson();
             Id = provider.GetId(20);
+            SetJson();
 
             Console.WriteLine($"\nNew message sent.\nSender: {Sender.Name}\nReceiver: {Receiver.Name} ({Receiver.Type})\nText: {Text}\nTime: {TimeStamp}\nID: {Id}");
         }
@@ -93,7 +92,6 @@ namespace Domain
                 $" \"receiver_id\" : \"{Receiver.Id}\"," +
                 $" \"text\" : \"{Text}\"," +
                 $" \"timestamp\" : \"{TimeStamp}\"," +
-                $" \"text\" : \"{Text}\"," +
                 $" \"color\" : \"{Sender.Color}\"" +
                 "}";
             Json = json;
@@ -121,6 +119,8 @@ namespace Domain
         public string Type { get; set; }
 
         public string AvatarUrl { get; set; }
+
+        public string Bio { get; set; }
 
         public Dialogue(IIdProvider provider, string name, string type, User creator)
         {

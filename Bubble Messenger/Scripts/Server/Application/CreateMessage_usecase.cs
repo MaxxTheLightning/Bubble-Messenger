@@ -25,11 +25,11 @@ namespace Application
             DialogueRepo = dialogueRepo;
         }
 
-        public Result Execute(string sender_id, string sender_password, string receiver_id, string text, string time, string json)
+        public Result Execute(string sender_id, string sender_password, string receiver_id, string text, string time)
         {
             if (UserRepo.GetUserById(sender_id) != null && UserRepo.GetUserById(sender_id).Password == sender_password)
             {
-                MessageRepo.CreateMessage(UserRepo.GetUserById(sender_id), DialogueRepo.GetDialogueById(receiver_id), text, time, json);
+                MessageRepo.CreateMessage(UserRepo.GetUserById(sender_id), DialogueRepo.GetDialogueById(receiver_id), text, time);
 
                 return Result.SUCCESS;
             }

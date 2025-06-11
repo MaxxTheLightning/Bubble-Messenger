@@ -16,7 +16,9 @@ namespace Presentation
             UserRepo = userRepo;
         }
 
-        private static readonly Dictionary<WebSocket, bool> webSocketClients = new Dictionary<WebSocket, bool>();
+        //private static readonly Dictionary<WebSocket, bool> webSocketClients = new Dictionary<WebSocket, bool>();
+
+        private static readonly List<WebSocket> webSocketClients = new List<WebSocket>();
 
         public void Start()
         {
@@ -55,10 +57,7 @@ namespace Presentation
                 if (httpContext.Request.IsWebSocketRequest)
                 {
                     var wsContext = await httpContext.AcceptWebSocketAsync(null);
-                    lock (webSocketClients)
-                    {
-                        webSocketClients[wsContext.WebSocket] = true;
-                    }
+
                     _ = HandleWebSocketClient(wsContext.WebSocket, userRepo);
                 }
                 else
@@ -87,15 +86,25 @@ namespace Presentation
                 {
                     string message = Encoding.UTF8.GetString(buffer, 0, result.Count);
 
-                    Console.WriteLine($"Wow! New message received: {message}");
-                    Console.WriteLine(ParseJson(message, "name"));
-                    Console.WriteLine(ParseJson(message, "text"));
+                    Console.WriteLine($"\nNew message received: {message}");
 
-                    if (ParseJson(message, "name") == "MaxxTheLightning" && ParseJson(message, "text") == "connected to server")
+                    string _userId = ParseJson(message, "user_id");
+
+                    string _action = ParseJson(message, "action");
+
+                    User user = userRepo.GetUserById(_userId);
+
+                    if (_action == "connected")
                     {
-                        Console.WriteLine("Nice.");
-                        User user = userRepo.GetUserByName("MaxxTheLightning");
-                        user.Sessions.Add(webSocket, true);
+                        user.NewSessions.Add(webSocket);
+
+                        Console.WriteLine($"\n{user.Name} opened a new session.");
+                    }
+                    else if (_action == "disconnected")
+                    {
+                        user.NewSessions.Remove(webSocket);
+
+                        Console.WriteLine($"\n{user.Name} closed a session.");
                     }
                 }
             }

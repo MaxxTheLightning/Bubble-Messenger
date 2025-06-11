@@ -30,9 +30,9 @@ namespace Infrastructure
             return null;
         }
 
-        public void CreateMessage(User sender, Dialogue receiver, string text, string time, string json)
+        public void CreateMessage(User sender, Dialogue receiver, string text, string time)
         {
-            Message new_message = new Message(IdProvider, sender, receiver, text, time, json);
+            Message new_message = new Message(IdProvider, sender, receiver, text, time);
             Messages.Add(new_message);
             BroadcastMessage.Broadcast(new_message);
         }

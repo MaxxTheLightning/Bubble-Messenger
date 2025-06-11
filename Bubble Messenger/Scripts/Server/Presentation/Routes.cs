@@ -56,7 +56,7 @@ namespace Presentation
 
             Application.MapPost("/create_dialogue", CreateDialogueController.Provide);
             Application.MapPost("/delete_dialogue", DeleteDialogueController.Provide);
-            Application.MapPost("/rename_dialogue", UpdateDialogueController.Rename);
+            Application.MapPost("/update_dialogue", UpdateDialogueController.Provide);
         }
     }
 }
