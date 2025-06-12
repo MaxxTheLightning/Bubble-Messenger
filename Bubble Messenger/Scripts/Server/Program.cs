@@ -54,6 +54,14 @@ var delete_dialogue_uc = new DeleteDialogueUsecase(dialogue_repo, user_repo);
 
 var update_dialogue_uc = new UpdateDialogueUsecase(dialogue_repo, user_repo);
 
+var get_account_uc = new GetAccountUsecase(user_repo);
+
+var view_account_uc = new ViewAccountUsecase(user_repo);
+
+var get_dialogue_uc = new GetDialogueUsecase(user_repo, dialogue_repo);
+
+var view_dialogue_uc = new ViewDialogueUsecase(dialogue_repo);
+
 var reg_control = new RegisterController(register_uc);
 
 var log_control = new LoginController(login_uc, user_repo);
@@ -74,6 +82,14 @@ var delete_dialogue_control = new DeleteDialogueController(delete_dialogue_uc);
 
 var update_dialogue_control = new UpdateDialogueController(update_dialogue_uc);
 
+var get_account_control = new GetAccountController(get_account_uc, user_repo);
+
+var view_account_control = new ViewAccountController(view_account_uc, user_repo);
+
+var get_dialogue_control = new GetDialogueController(get_dialogue_uc, dialogue_repo);
+
+var view_dialogue_control = new ViewDialogueController(view_dialogue_uc, dialogue_repo);
+
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -85,7 +101,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-var routes = new Routes(app, reg_control, log_control, del_user_control, create_message_control, update_user_control, update_message_control, delete_message_control, create_dialogue_control, delete_dialogue_control, update_dialogue_control);
+var routes = new Routes(app, reg_control, log_control, del_user_control, create_message_control, update_user_control, update_message_control, delete_message_control, create_dialogue_control, delete_dialogue_control, update_dialogue_control, get_account_control, view_account_control, get_dialogue_control, view_dialogue_control);
 
 // Configure the HTTP request pipeline.
 

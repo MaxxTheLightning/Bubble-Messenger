@@ -27,7 +27,15 @@ namespace Presentation
 
         UpdateDialogueController UpdateDialogueController { get; set; }
 
-        public Routes(WebApplication application, RegisterController regController, LoginController log_control, DeleteUserController deleteUserController, CreateMessageController createMessageController, UpdateUserController updateUserController, UpdateMessageController updateMessageController, DeleteMessageController deleteMessageController, CreateDialogueController createDialogueController, DeleteDialogueController deleteDialogueController, UpdateDialogueController updateDialogueController)
+        GetAccountController GetAccountController { get; set; }
+
+        ViewAccountController ViewAccountController { get; set; }
+
+        GetDialogueController GetDialogueController { get; set; }
+
+        ViewDialogueController ViewDialogueController { get; set; }
+
+        public Routes(WebApplication application, RegisterController regController, LoginController log_control, DeleteUserController deleteUserController, CreateMessageController createMessageController, UpdateUserController updateUserController, UpdateMessageController updateMessageController, DeleteMessageController deleteMessageController, CreateDialogueController createDialogueController, DeleteDialogueController deleteDialogueController, UpdateDialogueController updateDialogueController, GetAccountController getAccountController, ViewAccountController viewAccountController, GetDialogueController getDialogueController, ViewDialogueController viewDialogueController)
         {
             Application = application;
             RegController = regController;
@@ -40,6 +48,10 @@ namespace Presentation
             CreateDialogueController = createDialogueController;
             DeleteDialogueController = deleteDialogueController;
             UpdateDialogueController = updateDialogueController;
+            GetAccountController = getAccountController;
+            ViewAccountController = viewAccountController;
+            GetDialogueController = getDialogueController;
+            ViewDialogueController = viewDialogueController;
         }
 
         
@@ -49,6 +61,8 @@ namespace Presentation
             Application.MapPost("/login", LoginController.Provide);
             Application.MapPost("/delete_user", DeleteUserController.Provide);
             Application.MapPost("/update_user", UpdateUserController.Provide);
+            Application.MapPost("/get_user", GetAccountController.Provide);
+            Application.MapPost("/view_user", ViewAccountController.Provide);
 
             Application.MapPost("/send", CreateMessageController.Provide);
             Application.MapPost("/edit_message", UpdateMessageController.Provide);
@@ -57,6 +71,8 @@ namespace Presentation
             Application.MapPost("/create_dialogue", CreateDialogueController.Provide);
             Application.MapPost("/delete_dialogue", DeleteDialogueController.Provide);
             Application.MapPost("/update_dialogue", UpdateDialogueController.Provide);
+            Application.MapPost("/get_dialogue", GetDialogueController.Provide);
+            Application.MapPost("/view_dialogue", ViewDialogueController.Provide);
         }
     }
 }
