@@ -2,6 +2,8 @@
 {
     public interface IDialogueRepo
     {
+        public List<Dialogue> GetAllDialogues();
+
         public Dialogue GetDialogueById(string id);
 
         public void CreateDialogue(string name, string type, User creator);

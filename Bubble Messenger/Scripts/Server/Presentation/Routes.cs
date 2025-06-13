@@ -35,7 +35,9 @@ namespace Presentation
 
         ViewDialogueController ViewDialogueController { get; set; }
 
-        public Routes(WebApplication application, RegisterController regController, LoginController log_control, DeleteUserController deleteUserController, CreateMessageController createMessageController, UpdateUserController updateUserController, UpdateMessageController updateMessageController, DeleteMessageController deleteMessageController, CreateDialogueController createDialogueController, DeleteDialogueController deleteDialogueController, UpdateDialogueController updateDialogueController, GetAccountController getAccountController, ViewAccountController viewAccountController, GetDialogueController getDialogueController, ViewDialogueController viewDialogueController)
+        GetChatsController GetChatsController { get; set; }
+
+        public Routes(WebApplication application, RegisterController regController, LoginController log_control, DeleteUserController deleteUserController, CreateMessageController createMessageController, UpdateUserController updateUserController, UpdateMessageController updateMessageController, DeleteMessageController deleteMessageController, CreateDialogueController createDialogueController, DeleteDialogueController deleteDialogueController, UpdateDialogueController updateDialogueController, GetAccountController getAccountController, ViewAccountController viewAccountController, GetDialogueController getDialogueController, ViewDialogueController viewDialogueController, GetChatsController getChatsController)
         {
             Application = application;
             RegController = regController;
@@ -52,6 +54,7 @@ namespace Presentation
             ViewAccountController = viewAccountController;
             GetDialogueController = getDialogueController;
             ViewDialogueController = viewDialogueController;
+            GetChatsController = getChatsController;
         }
 
         
@@ -73,6 +76,7 @@ namespace Presentation
             Application.MapPost("/update_dialogue", UpdateDialogueController.Provide);
             Application.MapPost("/get_dialogue", GetDialogueController.Provide);
             Application.MapPost("/view_dialogue", ViewDialogueController.Provide);
+            Application.MapGet("/get_chats", GetChatsController.Provide);
         }
     }
 }

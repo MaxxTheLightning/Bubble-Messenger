@@ -16,8 +16,6 @@ namespace Presentation
             UserRepo = userRepo;
         }
 
-        //private static readonly Dictionary<WebSocket, bool> webSocketClients = new Dictionary<WebSocket, bool>();
-
         private static readonly List<WebSocket> webSocketClients = new List<WebSocket>();
 
         public void Start()

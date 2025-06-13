@@ -14,6 +14,11 @@ namespace Infrastructure
             IdProvider = idProvider;
         }
 
+        public List<Dialogue> GetAllDialogues()
+        {
+            return Dialogues;
+        }
+
         public Dialogue GetDialogueById(string id)
         {
             foreach (Dialogue dialogue in Dialogues.ToList())

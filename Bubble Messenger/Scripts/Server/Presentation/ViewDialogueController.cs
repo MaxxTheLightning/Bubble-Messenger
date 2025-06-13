@@ -33,7 +33,7 @@ namespace Presentation
                     participants += $"[{u.Name}, {u.Id}], ";
                 }
 
-                string new_participants = participants[..-2];
+                string new_participants = participants[..(participants.Length - 2)];
 
                 new_participants += "]";
 
@@ -42,7 +42,7 @@ namespace Presentation
                     administrators += $"[{u.Name}, {u.Id}], ";
                 }
 
-                string new_admins = administrators[..-2];
+                string new_admins = administrators[..(administrators.Length - 2)];
 
                 new_admins += "]";
 

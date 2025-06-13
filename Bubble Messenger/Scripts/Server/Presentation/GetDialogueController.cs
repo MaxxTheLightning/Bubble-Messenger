@@ -25,9 +25,6 @@ namespace Presentation
             {
                 Dialogue _dialogue = DialogueRepo.GetDialogueById(dto.dialogue_id);
 
-                string dialogue_name = _dialogue.Name;
-                string dialogue_bio = _dialogue.Bio;
-                string dialogue_avatar = _dialogue.AvatarUrl;
                 string participants = "[";
                 string administrators = "[";
                 string banned = "[";
@@ -38,7 +35,7 @@ namespace Presentation
                     participants += $"[{u.Name}, {u.Id}], ";
                 }
 
-                string new_participants = participants[..-2];
+                string new_participants = participants[..(participants.Length - 2)];
 
                 new_participants += "]";
 
@@ -47,7 +44,7 @@ namespace Presentation
                     administrators += $"[{u.Name}, {u.Id}], ";
                 }
 
-                string new_admins = administrators[..-2];
+                string new_admins = administrators[..(administrators.Length - 2)];
 
                 new_admins += "]";
 
@@ -56,7 +53,7 @@ namespace Presentation
                     banned += $"[{u.Name}, {u.Id}], ";
                 }
 
-                string new_banned = banned[..-2];
+                string new_banned = banned[..(banned.Length - 2)];
 
                 new_banned += "]";
 
@@ -65,7 +62,7 @@ namespace Presentation
                     muted += $"[{u.Name}, {u.Id}], ";
                 }
 
-                string new_muted = muted[..-2];
+                string new_muted = muted[..(muted.Length - 2)];
 
                 new_muted += "]";
 
