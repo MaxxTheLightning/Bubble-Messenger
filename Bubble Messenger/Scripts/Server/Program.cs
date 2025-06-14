@@ -26,12 +26,11 @@ builder.Services.AddCors(options =>
 
 
 
-var broadcast_msg = new BroadcastMessage();
-
+var broadcast_msg = new BroadcastMessage(user_repo);
 
 var msg_repo = new MockMessageRepo(id_provider, broadcast_msg);
 
-var dialogue_repo = new MockDialogueRepo(id_provider);
+var dialogue_repo = new MockDialogueRepo(id_provider, broadcast_msg);
 
 var register_uc = new RegisterUsecase(user_repo);
 
@@ -89,7 +88,11 @@ var get_dialogue_control = new GetDialogueController(get_dialogue_uc, dialogue_r
 
 var view_dialogue_control = new ViewDialogueController(view_dialogue_uc, dialogue_repo);
 
-var get_chats_control = new GetChatsController(dialogue_repo);
+var get_chats_control = new GetChatsController(dialogue_repo, user_repo);
+
+var get_channels_control = new GetChannelsController(dialogue_repo, user_repo);
+
+var get_users_control = new GetUsersController(user_repo);
 
 // Add services to the container.
 
@@ -102,7 +105,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-var routes = new Routes(app, reg_control, log_control, del_user_control, create_message_control, update_user_control, update_message_control, delete_message_control, create_dialogue_control, delete_dialogue_control, update_dialogue_control, get_account_control, view_account_control, get_dialogue_control, view_dialogue_control, get_chats_control);
+var routes = new Routes(app, reg_control, log_control, del_user_control, create_message_control, update_user_control, update_message_control, delete_message_control, create_dialogue_control, delete_dialogue_control, update_dialogue_control, get_account_control, view_account_control, get_dialogue_control, view_dialogue_control, get_chats_control, get_channels_control, get_users_control);
 
 // Configure the HTTP request pipeline.
 

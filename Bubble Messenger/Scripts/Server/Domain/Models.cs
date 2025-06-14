@@ -1,7 +1,5 @@
-using System.Net.Sockets;
 using System.Net.WebSockets;
 using System.Text.RegularExpressions;
-using System.Xml.Linq;
 
 namespace Domain
 {
@@ -32,7 +30,7 @@ namespace Domain
             Password = password;
             Bio = "No bio...";
             Color = "#ffffff";
-            AvatarUrl = "";
+            AvatarUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDoKp0wum3Z8G1cQXa7j9UtFbpTYqG5YhUcg&s";
             isOnline = false;
             NewSessions = new List<WebSocket>();
             SetJson();
@@ -87,8 +85,10 @@ namespace Domain
         public void SetJson()
         {
             string json = "{" +
+                "\"type\": \"send\"," +
                 $" \"id\" : \"{Id}\"," +
                 $" \"sender_name\" : \"{Sender.Name}\"," +
+                $" \"sender_id\" : \"{Sender.Id}\"," +
                 $" \"receiver_id\" : \"{Receiver.Id}\"," +
                 $" \"text\" : \"{Text}\"," +
                 $" \"timestamp\" : \"{TimeStamp}\"," +

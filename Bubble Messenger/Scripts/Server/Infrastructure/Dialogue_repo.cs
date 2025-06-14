@@ -8,10 +8,13 @@ namespace Infrastructure
 
         IIdProvider IdProvider { get; }
 
-        public MockDialogueRepo(IIdProvider idProvider) 
+        IBroadcastMessage BroadcastMessage { get; }
+
+        public MockDialogueRepo(IIdProvider idProvider, IBroadcastMessage broadcastMessage) 
         {
             Dialogues = new List<Dialogue>();
             IdProvider = idProvider;
+            BroadcastMessage = broadcastMessage;
         }
 
         public List<Dialogue> GetAllDialogues()
@@ -36,6 +39,7 @@ namespace Infrastructure
         {
             Dialogue new_dialogue = new Dialogue(IdProvider, name, type, creator);
             Dialogues.Add(new_dialogue);
+            BroadcastMessage.CreateDialogue(new_dialogue);
         }
 
         public void DeleteDialogue(string id)
@@ -45,6 +49,7 @@ namespace Infrastructure
                 if (dialogue.Id == id)
                 {
                     Dialogues.Remove(dialogue);
+                    BroadcastMessage.DeleteDialogue(dialogue);
                 }
             }
         }
@@ -56,6 +61,7 @@ namespace Infrastructure
                 if (d.Id == dialogue.Id)
                 {
                     Dialogues[Dialogues.IndexOf(d)] = dialogue;
+                    BroadcastMessage.UpdateDialogue(dialogue);
                 }
             }
         }

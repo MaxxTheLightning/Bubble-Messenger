@@ -2,21 +2,21 @@
 
 namespace Presentation
 {
-    public class GetChatsController
+    public class GetChannelsController
     {
         IDialogueRepo DialogueRepo { get; }
 
         IUserRepo UserRepo { get; }
 
-        public GetChatsController(IDialogueRepo dialogueRepo, IUserRepo userRepo)
+        public GetChannelsController(IDialogueRepo dialogueRepo, IUserRepo userRepo)
         {
             DialogueRepo = dialogueRepo;
             UserRepo = userRepo;
         }
 
-        public record GetUserDTO (string user_id);
+        public record GetUserDTo (string user_id);
 
-        public IResult Provide(GetUserDTO dto)
+        public IResult Provide(GetUserDTo dto)
         {
             List<Dialogue> _allDialogues = DialogueRepo.GetAllDialogues();
 
@@ -24,7 +24,7 @@ namespace Presentation
 
             foreach (Dialogue _dialogue in _allDialogues)
             {
-                if (_dialogue.Type == "chat" && _dialogue.Participants.Contains(UserRepo.GetUserById(dto.user_id)))
+                if (_dialogue.Type == "channel" && _dialogue.Participants.Contains(UserRepo.GetUserById(dto.user_id)))
                 {
                     response += $"[{_dialogue.Name}, {_dialogue.Id}, {_dialogue.AvatarUrl}], ";
                 }
@@ -40,7 +40,7 @@ namespace Presentation
             }
             else
             {
-                return Results.Conflict("No chats to display.");
+                return Results.Conflict("No channels to display.");
             }
         }
     }

@@ -44,6 +44,7 @@ namespace Infrastructure
                 if (message.Id == id)
                 {
                     Messages.Remove(message);
+                    BroadcastMessage.DeleteMessage(message);
                 }
             }
         }
@@ -55,6 +56,7 @@ namespace Infrastructure
                 if (msg.Id == message.Id)
                 {
                     Messages[Messages.IndexOf(msg)] = message;
+                    BroadcastMessage.EditMessage(message);
                 }
             }
         }

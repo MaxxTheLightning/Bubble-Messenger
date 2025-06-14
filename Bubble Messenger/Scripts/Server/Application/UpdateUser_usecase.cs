@@ -39,7 +39,7 @@ namespace Application
                 string _deadname = _target.Name;
 
                 _target.Name = new_name;
-                _target.Password = password;
+                _target.Password = new_password;
                 _target.Bio = new_bio;
                 _target.Color = new_color;
                 _target.AvatarUrl = new_avatarUrl;

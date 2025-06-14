@@ -37,7 +37,11 @@ namespace Presentation
 
         GetChatsController GetChatsController { get; set; }
 
-        public Routes(WebApplication application, RegisterController regController, LoginController log_control, DeleteUserController deleteUserController, CreateMessageController createMessageController, UpdateUserController updateUserController, UpdateMessageController updateMessageController, DeleteMessageController deleteMessageController, CreateDialogueController createDialogueController, DeleteDialogueController deleteDialogueController, UpdateDialogueController updateDialogueController, GetAccountController getAccountController, ViewAccountController viewAccountController, GetDialogueController getDialogueController, ViewDialogueController viewDialogueController, GetChatsController getChatsController)
+        GetChannelsController GetChannelsController { get; set; }
+
+        GetUsersController GetUsersController { get; set; }
+
+        public Routes(WebApplication application, RegisterController regController, LoginController log_control, DeleteUserController deleteUserController, CreateMessageController createMessageController, UpdateUserController updateUserController, UpdateMessageController updateMessageController, DeleteMessageController deleteMessageController, CreateDialogueController createDialogueController, DeleteDialogueController deleteDialogueController, UpdateDialogueController updateDialogueController, GetAccountController getAccountController, ViewAccountController viewAccountController, GetDialogueController getDialogueController, ViewDialogueController viewDialogueController, GetChatsController getChatsController, GetChannelsController getChannelsController, GetUsersController getUsersController)
         {
             Application = application;
             RegController = regController;
@@ -55,6 +59,8 @@ namespace Presentation
             GetDialogueController = getDialogueController;
             ViewDialogueController = viewDialogueController;
             GetChatsController = getChatsController;
+            GetChannelsController = getChannelsController;
+            GetUsersController = getUsersController;
         }
 
         
@@ -66,6 +72,7 @@ namespace Presentation
             Application.MapPost("/update_user", UpdateUserController.Provide);
             Application.MapPost("/get_user", GetAccountController.Provide);
             Application.MapPost("/view_user", ViewAccountController.Provide);
+            Application.MapPost("/get_users", GetUsersController.Provide);
 
             Application.MapPost("/send", CreateMessageController.Provide);
             Application.MapPost("/edit_message", UpdateMessageController.Provide);
@@ -76,7 +83,8 @@ namespace Presentation
             Application.MapPost("/update_dialogue", UpdateDialogueController.Provide);
             Application.MapPost("/get_dialogue", GetDialogueController.Provide);
             Application.MapPost("/view_dialogue", ViewDialogueController.Provide);
-            Application.MapGet("/get_chats", GetChatsController.Provide);
+            Application.MapPost("/get_chats", GetChatsController.Provide);
+            Application.MapPost("/get_chnnels", GetChannelsController.Provide);
         }
     }
 }
