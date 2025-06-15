@@ -6,6 +6,8 @@ namespace Application
     {
         IUserRepo Repo { get; }
 
+        IBroadcastMessage BroadcastMessage { get; }
+
         public enum Result
         {
             SUCCESS,
@@ -13,9 +15,10 @@ namespace Application
             NOT_FOUND
         }
 
-        public UpdateUserUsecase(IUserRepo repo)
+        public UpdateUserUsecase(IUserRepo repo, IBroadcastMessage broadcastMessage)
         {
             Repo = repo;
+            BroadcastMessage = broadcastMessage;
         }
 
         public Result Execute(string id, string password, string new_name, string new_password, string new_bio, string new_color, string new_avatarUrl)
@@ -45,6 +48,8 @@ namespace Application
                 _target.AvatarUrl = new_avatarUrl;
 
                 Repo.UpdateUser(_target);
+
+                BroadcastMessage.UpdateUser(_target, Repo.GetAllUsers());
 
                 Console.WriteLine($"\nUser {_deadname} updated successfully.\nID: {_target.Id}\nName: {new_name}\nPassword: {password}\nBio: {new_bio}\nColor: {new_color}\nAvatar URL: {new_avatarUrl}");
 

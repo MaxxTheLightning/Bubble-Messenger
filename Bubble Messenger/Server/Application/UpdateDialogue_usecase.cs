@@ -42,7 +42,7 @@ namespace Application
 
             if (UserRepo.GetUserById(author_id) == null)
             {
-                Console.WriteLine($"Author {author_id} not found. (Dialogue editing attempt)");
+                Console.WriteLine($"\nAuthor {author_id} not found. (Dialogue editing attempt)");
 
                 return Result.AUTHOR_NOT_FOUND;
             }

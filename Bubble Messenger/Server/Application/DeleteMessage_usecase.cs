@@ -24,7 +24,8 @@ namespace Application
 
         public Result Execute(string message_id, string sender_id, string sender_password)
         {
-            Message _message = Repo.GetMessage(message_id);  // Пробуем получить сообщение
+            Message _message = Repo.GetMessage(message_id);
+
             if (UserRepo.GetUserById(sender_id) == null)
             {
                 Console.WriteLine($"\nError deleting message: empty sender.");

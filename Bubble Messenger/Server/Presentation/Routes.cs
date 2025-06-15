@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Builder;
-
-namespace Presentation
+﻿namespace Presentation
 {
     public class Routes
     {
@@ -41,7 +38,9 @@ namespace Presentation
 
         GetUsersController GetUsersController { get; set; }
 
-        public Routes(WebApplication application, RegisterController regController, LoginController log_control, DeleteUserController deleteUserController, CreateMessageController createMessageController, UpdateUserController updateUserController, UpdateMessageController updateMessageController, DeleteMessageController deleteMessageController, CreateDialogueController createDialogueController, DeleteDialogueController deleteDialogueController, UpdateDialogueController updateDialogueController, GetAccountController getAccountController, ViewAccountController viewAccountController, GetDialogueController getDialogueController, ViewDialogueController viewDialogueController, GetChatsController getChatsController, GetChannelsController getChannelsController, GetUsersController getUsersController)
+        GetMessagesController GetMessagesController { get; set; }
+
+        public Routes(WebApplication application, RegisterController regController, LoginController log_control, DeleteUserController deleteUserController, CreateMessageController createMessageController, UpdateUserController updateUserController, UpdateMessageController updateMessageController, DeleteMessageController deleteMessageController, CreateDialogueController createDialogueController, DeleteDialogueController deleteDialogueController, UpdateDialogueController updateDialogueController, GetAccountController getAccountController, ViewAccountController viewAccountController, GetDialogueController getDialogueController, ViewDialogueController viewDialogueController, GetChatsController getChatsController, GetChannelsController getChannelsController, GetUsersController getUsersController, GetMessagesController getMessagesController)
         {
             Application = application;
             RegController = regController;
@@ -61,9 +60,10 @@ namespace Presentation
             GetChatsController = getChatsController;
             GetChannelsController = getChannelsController;
             GetUsersController = getUsersController;
+            GetMessagesController = getMessagesController;
         }
 
-        
+
         public void SetupRoutes()
         {
             Application.MapPost("/register", RegController.Provide);
@@ -77,6 +77,7 @@ namespace Presentation
             Application.MapPost("/send", CreateMessageController.Provide);
             Application.MapPost("/edit_message", UpdateMessageController.Provide);
             Application.MapPost("/delete_message", DeleteMessageController.Provide);
+            Application.MapPost("/get_messages", GetMessagesController.Provide);
 
             Application.MapPost("/create_dialogue", CreateDialogueController.Provide);
             Application.MapPost("/delete_dialogue", DeleteDialogueController.Provide);
@@ -84,7 +85,7 @@ namespace Presentation
             Application.MapPost("/get_dialogue", GetDialogueController.Provide);
             Application.MapPost("/view_dialogue", ViewDialogueController.Provide);
             Application.MapPost("/get_chats", GetChatsController.Provide);
-            Application.MapPost("/get_chnnels", GetChannelsController.Provide);
+            Application.MapPost("/get_channels", GetChannelsController.Provide);
         }
     }
 }

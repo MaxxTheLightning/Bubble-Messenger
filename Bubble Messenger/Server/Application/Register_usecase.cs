@@ -6,15 +6,18 @@ namespace Application
     {
         IUserRepo Repo { get; }
 
+        IBroadcastMessage BroadcastMessage { get; }
+
         public enum Result
         {
             SUCCESS,
             USER_ALREADY_EXISTS
         }
 
-        public RegisterUsecase(IUserRepo repo)
+        public RegisterUsecase(IUserRepo repo, IBroadcastMessage broadcastMessage)
         {
             Repo = repo;
+            BroadcastMessage = broadcastMessage;
         }
 
         public Result Execute(string name, string password)
@@ -23,11 +26,12 @@ namespace Application
             {
                 Repo.CreateUser(name, password);
 
+                BroadcastMessage.CreateUser(Repo.GetUserByName(name), Repo.GetAllUsers());
+
                 return Result.SUCCESS;
             }
             else
             {
-                //  Мы попробовали получить пользователя. Если он не null, то значит такой пользователь уже существует.
                 return Result.USER_ALREADY_EXISTS;
             }
         }

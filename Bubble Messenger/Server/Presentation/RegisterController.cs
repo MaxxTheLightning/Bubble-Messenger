@@ -1,5 +1,4 @@
 ﻿using Application;
-using Microsoft.AspNetCore.Cors;
 
 namespace Presentation
 {

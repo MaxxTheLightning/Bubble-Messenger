@@ -1,6 +1,11 @@
+// Made by MaxxTheLightning, 2025
+
 using Application;
 using Infrastructure;
 using Presentation;
+
+Console.WriteLine("Made by MaxxTheLightning, 2025");
+Console.WriteLine("\nWelcome to Bubble Server");
 
 var id_provider = new RandomIdProvider();
 
@@ -26,19 +31,19 @@ builder.Services.AddCors(options =>
 
 
 
-var broadcast_msg = new BroadcastMessage(user_repo);
-
-var msg_repo = new MockMessageRepo(id_provider, broadcast_msg);
+var broadcast_msg = new BroadcastMessage();
 
 var dialogue_repo = new MockDialogueRepo(id_provider, broadcast_msg);
 
-var register_uc = new RegisterUsecase(user_repo);
+var msg_repo = new MockMessageRepo(id_provider, broadcast_msg, dialogue_repo);
+
+var register_uc = new RegisterUsecase(user_repo, broadcast_msg);
 
 var login_uc = new LoginUsecase(user_repo);
 
-var del_user_uc = new DeleteUserUsecase(user_repo);
+var del_user_uc = new DeleteUserUsecase(user_repo, broadcast_msg);
 
-var update_user_uc = new UpdateUserUsecase(user_repo);
+var update_user_uc = new UpdateUserUsecase(user_repo, broadcast_msg);
 
 var create_message_uc = new CreateMessageUsecase(msg_repo, user_repo, dialogue_repo);
 
@@ -94,6 +99,8 @@ var get_channels_control = new GetChannelsController(dialogue_repo, user_repo);
 
 var get_users_control = new GetUsersController(user_repo);
 
+var get_messages_control = new GetMessagesController(dialogue_repo);
+
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -105,7 +112,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-var routes = new Routes(app, reg_control, log_control, del_user_control, create_message_control, update_user_control, update_message_control, delete_message_control, create_dialogue_control, delete_dialogue_control, update_dialogue_control, get_account_control, view_account_control, get_dialogue_control, view_dialogue_control, get_chats_control, get_channels_control, get_users_control);
+var routes = new Routes(app, reg_control, log_control, del_user_control, create_message_control, update_user_control, update_message_control, delete_message_control, create_dialogue_control, delete_dialogue_control, update_dialogue_control, get_account_control, view_account_control, get_dialogue_control, view_dialogue_control, get_chats_control, get_channels_control, get_users_control, get_messages_control);
 
 // Configure the HTTP request pipeline.
 
@@ -127,7 +134,7 @@ app.Use(async (context, next) =>
     await next();
 });
 
-app.UseCors(); // ќЅя«ј“≈Ћ№Ќќ здесь
+app.UseCors();
 
 app.UseRouting();
 

@@ -33,20 +33,14 @@ namespace Domain
             AvatarUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDoKp0wum3Z8G1cQXa7j9UtFbpTYqG5YhUcg&s";
             isOnline = false;
             NewSessions = new List<WebSocket>();
-            SetJson();
-
-            Console.WriteLine($"\nNew account created.\nName: {Name}\nPassword: {Password}\nID: {Id}");
-        }
-
-        public void SetJson()
-        {
-            string json = "{" +
+            Json = "{" +
                 $"\"name\": \"{Name}\"," +
                 $"\"id\": \"{Id}\"," +
                 $"\"password\": \"{Password}\"," +
                 $"\"bio\": \"{Bio}\"" +
                 "}";
-            Json = Regex.Replace(json, "\"", "\\\"");
+
+            Console.WriteLine($"\nNew account created.\nName: {Name}\nPassword: {Password}\nID: {Id}");
         }
     }
 

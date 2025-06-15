@@ -8,13 +8,10 @@ namespace Infrastructure
 
         IIdProvider IdProvider { get; }
 
-        IBroadcastMessage BroadcastMessaage { get; }
-
-        public MockUserRepo(IIdProvider idProvider, IBroadcastMessage broadcastMessaage)
+        public MockUserRepo(IIdProvider idProvider)
         {
             Users = new List<User>();
             IdProvider = idProvider;
-            BroadcastMessaage = broadcastMessaage;
         }
 
         public List<User> GetAllUsers()
@@ -52,7 +49,7 @@ namespace Infrastructure
         {
             User new_user = new User(IdProvider, name, password);
             Users.Add(new_user);
-            BroadcastMessaage.CreateUser(new_user);
+            //BroadcastMessaage.CreateUser(new_user);
         }
 
         public void DeleteUser(string id)
@@ -62,7 +59,7 @@ namespace Infrastructure
                 if (user.Id == id)
                 {
                     Users.Remove(user);
-                    BroadcastMessaage.DeleteUser(user);
+                    //BroadcastMessaage.DeleteUser(user);
                     break;
                 }
             }
@@ -75,7 +72,7 @@ namespace Infrastructure
                 if (u.Id == user.Id)
                 {
                     Users[Users.IndexOf(u)] = user;
-                    BroadcastMessaage.UpdateUser(user);
+                    //BroadcastMessaage.UpdateUser(user);
                     break;
                 }
             }

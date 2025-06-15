@@ -20,7 +20,7 @@ namespace Application
 
         public Result Execute(string name, string password)
         {
-            User _user = Repo.GetUserByName(name);  //  Пробуем получить пользователя
+            User _user = Repo.GetUserByName(name);
 
             if (_user != null)
             {
@@ -32,7 +32,7 @@ namespace Application
                 }
                 else
                 {
-                    Console.WriteLine($"\nUser {_user.Name} tried to login, but password is incorrect.\nEntered password: {password}\nCorrect password: {_user.Password}");
+                    Console.WriteLine($"\nUser {_user.Name} tried to login, but the password is incorrect.\nEntered password: {password}\nCorrect password: {_user.Password}");
 
                     return Result.INVALID_PASSWORD;
                 }

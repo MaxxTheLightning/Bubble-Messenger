@@ -6,6 +6,8 @@ namespace Application
     {
         IUserRepo Repo { get; }
 
+        IBroadcastMessage BroadcastMessage { get; }
+
         public enum Result
         {
             SUCCESS,
@@ -13,20 +15,23 @@ namespace Application
             INVALID_PASSWORD
         }
 
-        public DeleteUserUsecase(IUserRepo repo)
+        public DeleteUserUsecase(IUserRepo repo, IBroadcastMessage broadcastMessage)
         {
             Repo = repo;
+            BroadcastMessage = broadcastMessage;
         }
 
         public Result Execute(string id, string password)
         {
-            User _user = Repo.GetUserById(id);  // Пробуем получить пользователя
+            User _user = Repo.GetUserById(id);
 
             if (_user != null)
             {
                 if (_user.Password == password)
                 {
                     string _deadUsername = _user.Name;
+
+                    BroadcastMessage.DeleteUser(_user, Repo.GetAllUsers());
 
                     Repo.DeleteUser(id);
 

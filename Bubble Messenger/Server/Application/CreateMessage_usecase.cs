@@ -14,7 +14,6 @@ namespace Application
         {
             SUCCESS,
             ERROR
-            // Возможно, стоит добавить обработку ошибок. Например, проверка существования пользователя и/или диалога.
         }
 
         public CreateMessageUsecase(IMessageRepo repo, IUserRepo userRepo, IDialogueRepo dialogueRepo)

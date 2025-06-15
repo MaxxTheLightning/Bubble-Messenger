@@ -1,6 +1,4 @@
-﻿using System.Net.WebSockets;
-
-namespace Domain
+﻿namespace Domain
 {
     public interface IBroadcastMessage
     {
@@ -16,10 +14,10 @@ namespace Domain
 
         public void DeleteDialogue(Dialogue dialogue);
 
-        public void CreateUser(User user);
+        public void CreateUser(User user, List<User> users);
 
-        public void UpdateUser(User user);
+        public void UpdateUser(User user, List<User> users);
 
-        public void DeleteUser(User user);
+        public void DeleteUser(User user, List<User> users);
     }
 }

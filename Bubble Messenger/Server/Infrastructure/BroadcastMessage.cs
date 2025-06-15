@@ -1,20 +1,11 @@
 ﻿using Domain;
-using System.Net.Sockets;
 using System.Net.WebSockets;
-using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Infrastructure
 {
     public class BroadcastMessage : IBroadcastMessage
     {
-        MockUserRepo MockUserRepo { get; }
-
-        public BroadcastMessage(MockUserRepo mockUserRepo)
-        {
-            MockUserRepo = mockUserRepo;
-        }
-
         public void Broadcast(Message message)
         {
             byte[] data = Encoding.UTF8.GetBytes(message.Json);
@@ -127,7 +118,7 @@ namespace Infrastructure
             Send(data, webSocketClients);
         }
 
-        public void CreateUser(User _user)
+        public void CreateUser(User _user, List<User> users)
         {
             byte[] data = Encoding.UTF8.GetBytes("{ " + $"\"type\": \"create_user\"," +
                 $" \"user_id\": \"{_user.Id}\", " +
@@ -137,7 +128,7 @@ namespace Infrastructure
 
             List<WebSocket> webSocketClients = new List<WebSocket>();
 
-            foreach (User u in MockUserRepo.GetAllUsers())
+            foreach (User u in users)
             {
                 foreach (var s in u.NewSessions)
                 {
@@ -148,7 +139,7 @@ namespace Infrastructure
             Send(data, webSocketClients);
         }
 
-        public void UpdateUser(User _user)
+        public void UpdateUser(User _user, List<User> users)
         {
             byte[] data = Encoding.UTF8.GetBytes("{ " + $"\"type\": \"edit_user\"," +
                 $" \"user_id\": \"{_user.Id}\", " +
@@ -158,7 +149,7 @@ namespace Infrastructure
 
             List<WebSocket> webSocketClients = new List<WebSocket>();
 
-            foreach (User u in MockUserRepo.GetAllUsers())
+            foreach (User u in users)
             {
                 foreach (var s in u.NewSessions)
                 {
@@ -169,7 +160,7 @@ namespace Infrastructure
             Send(data, webSocketClients);
         }
 
-        public void DeleteUser(User _user)
+        public void DeleteUser(User _user, List<User> users)
         {
             byte[] data = Encoding.UTF8.GetBytes("{ " + $"\"type\": \"delete_user\"," +
                 $" \"user_id\": \"{_user.Id}\"" +
@@ -177,7 +168,7 @@ namespace Infrastructure
 
             List<WebSocket> webSocketClients = new List<WebSocket>();
 
-            foreach (User u in MockUserRepo.GetAllUsers())
+            foreach (User u in users)
             {
                 foreach (var s in u.NewSessions)
                 {

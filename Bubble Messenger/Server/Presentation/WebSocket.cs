@@ -1,6 +1,5 @@
 ﻿using Domain;
 using System.Net;
-using System.Net.Sockets;
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
@@ -42,11 +41,12 @@ namespace Presentation
             try
             {
                 httpListener.Start();
-                Console.WriteLine($"WebSocket Server started on 127.0.0.1:8080...\n");
+                Console.WriteLine($"\nWebSocket Server started on 127.0.0.1:8080...");
+                Console.WriteLine("\nNow you can follow this link: https://bubble-messenger.github.io/\n");
             }
             catch
             {
-                Console.WriteLine("Failed to start the server. Check your IP-address and restart the server with administrator rights.");
+                Console.WriteLine("\nFailed to start the server. Check your IP-address and restart the server with administrator rights.");
             }
 
             while (true)

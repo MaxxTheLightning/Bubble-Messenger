@@ -8,13 +8,16 @@ namespace Infrastructure
 
         IIdProvider IdProvider { get; }
 
+        IDialogueRepo DialogueRepo { get; }
+
         IBroadcastMessage BroadcastMessage { get; }
 
-        public MockMessageRepo(IIdProvider idProvider, IBroadcastMessage broadcastMessage)
+        public MockMessageRepo(IIdProvider idProvider, IBroadcastMessage broadcastMessage, IDialogueRepo dialogueRepo)
         {
             Messages = new List<Message>();
             IdProvider = idProvider;
             BroadcastMessage = broadcastMessage;
+            DialogueRepo = dialogueRepo;
         }
 
         public Message GetMessage(string id)
@@ -34,6 +37,7 @@ namespace Infrastructure
         {
             Message new_message = new Message(IdProvider, sender, receiver, text, time);
             Messages.Add(new_message);
+            DialogueRepo.GetDialogueById(receiver.Id).Messages.Add(new_message);
             BroadcastMessage.Broadcast(new_message);
         }
 
@@ -44,6 +48,7 @@ namespace Infrastructure
                 if (message.Id == id)
                 {
                     Messages.Remove(message);
+                    DialogueRepo.GetDialogueById(message.Receiver.Id).Messages.Remove(message);
                     BroadcastMessage.DeleteMessage(message);
                 }
             }
@@ -56,6 +61,7 @@ namespace Infrastructure
                 if (msg.Id == message.Id)
                 {
                     Messages[Messages.IndexOf(msg)] = message;
+                    DialogueRepo.GetDialogueById(msg.Receiver.Id).Messages[DialogueRepo.GetDialogueById(msg.Receiver.Id).Messages.IndexOf(msg)] = message;
                     BroadcastMessage.EditMessage(message);
                 }
             }
